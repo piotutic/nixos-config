@@ -49,6 +49,7 @@
     isNormalUser = true;
     description = "Pio";
     extraGroups = [ "networkmanager" "wheel" ];
+    shell = pkgs.zsh;
   };
 
   # Sudo for wheel without password (optional, remove if undesired)
@@ -60,6 +61,9 @@
     wget
     curl
   ];
+
+  # Enable zsh system-wide
+  programs.zsh.enable = true;
 
   # Match initial install’s state version
   system.stateVersion = "25.05";
