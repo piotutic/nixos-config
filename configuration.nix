@@ -2,18 +2,7 @@
 
 {
   imports =
-    let
-      repoHwPath = toString ./. + "/hardware-configuration.nix";
-      etcHwPath = "/etc/nixos/hardware-configuration.nix";
-      hwModule =
-        if builtins.pathExists repoHwPath then import repoHwPath
-        else if builtins.pathExists etcHwPath then import etcHwPath
-        else (throw ''
-          Missing hardware-configuration.nix.
-          Generate one with: sudo nixos-generate-config
-          It will create /etc/nixos/hardware-configuration.nix which this config will import.
-        '');
-    in [ hwModule ];
+    [ /etc/nixos/hardware-configuration.nix ];
 
   # Bootloader
   boot.loader.systemd-boot.enable = true;
@@ -68,8 +57,6 @@
 
   # Base system packages (user apps via Home Manager)
   environment.systemPackages = with pkgs; [
-    git
-    vim
     wget
     curl
   ];
