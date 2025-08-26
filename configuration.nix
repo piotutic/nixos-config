@@ -10,7 +10,7 @@
 
   # Hostname and time
   networking.hostName = "nixos";
-  time.timeZone = "UTC";
+  time.timeZone = "Europe/Zagreb";
 
   # Networking
   networking.networkmanager.enable = true;
