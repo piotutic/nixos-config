@@ -56,11 +56,12 @@
       # System
       update = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio";
       upgrade = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio --upgrade";
+      nix-gc = "sudo nix-collect-garbage -d";
       
       # Development
-      py = "python3";
-      pip = "pip3";
-      node = "node --version && npm --version";
+      # py = "python3";
+      # pip = "pip3";
+      # node = "node --version && npm --version";
       
       # Fun
       weather = "curl wttr.in";
