@@ -10,10 +10,22 @@
       add_newline = false;
       command_timeout = 1000;
 
+      # Identity (show only when it matters)
+      username = {
+        show_always = true;
+        style_user = "bold white";
+        format = "[$user]($style)";
+      };
+      hostname = {
+        ssh_only = true;
+        style = "bold white";
+        format = "[@$hostname]($style) ";
+      };
+
       # Prompt character
       character = {
-        success_symbol = "[➜](bold green)";
-        error_symbol   = "[✗](bold red)";
+        success_symbol = "[❯](bold green)";
+        error_symbol   = "[❯](bold red)";
         vicmd_symbol   = "[❮](bold yellow)";
       };
 
@@ -21,30 +33,30 @@
       directory = {
         truncation_length = 3;
         truncation_symbol = "…/";
-        style             = "bold blue";
-        read_only         = " 🔒";
+        style             = "bold cyan";
+        read_only         = " ";
         read_only_style   = "red";
       };
 
       # Git integration
       git_branch = {
-        symbol = " ";
+        symbol = " ";
         style  = "bold purple";
-        format = "on [$symbol$branch]($style) ";
+        format = "[$symbol$branch]($style) ";
       };
 
       git_status = {
         style     = "bold red";
         ahead     = "⇡\${count}";
         behind    = "⇣\${count}";
-        diverged  = "⇕⇡\${ahead_count}⇣\${behind_count}";
+        diverged  = "⇕\${ahead_count}⇣\${behind_count}";
         untracked = "?";
         stashed   = "≡";
         modified  = "!";
         staged    = "+";
         renamed   = "»";
         deleted   = "✘";
-        format    = "([$all_status$ahead_behind]($style))";
+        format    = "([$all_status$ahead_behind]($style)) ";
       };
 
       # Language versions
@@ -69,26 +81,26 @@
       };
 
       package = {
-        symbol = "📦 ";
+        symbol = "pkg ";
         style  = "bold blue";
-        format = "via [$symbol$version]($style) ";
+        format = "[$symbol$version]($style) ";
       };
 
       # System info
       time = {
         disabled    = false;
         time_format = "%T";
-        format      = "🕐 [$time]($style) ";
-        style       = "bold white";
+        format      = "[$time]($style) ";
+        style       = "white";
       };
 
       cmd_duration = {
-        min_time = 2000;
+        min_time = 1;
         format   = "took [$duration](bold yellow) ";
       };
 
       memory_usage = {
-        threshold = 75;
+        threshold = 1;
         style     = "bold white";
         format    = "mem [$ram_pct]($style) ";
       };
@@ -125,9 +137,12 @@
         disabled = true;
       };
 
-      # Prompt format
-      format       = "[┌─](bold blue)$directory$git_branch$git_status\n[└─](bold blue)$character";
-      right_format = "$time$cmd_duration";
+      # Clean two-line prompt without powerline caps
+      format = ''
+        $username$hostname$directory$git_branch$git_status
+        $time $character
+      '';
+      right_format = "$cmd_duration";
     };
   };
 }
