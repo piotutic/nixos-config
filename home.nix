@@ -18,8 +18,10 @@
       enableUpdateCheck = false;
       enableExtensionUpdateCheck = false;
       extensions = with pkgs.vscode-extensions; [
-        ms-python.python
-        ms-vscode.cpptools
+        ms-python.python              # Python language support
+        ms-vscode.cpptools            # C/C++ language support
+        jnoortheen.nix-ide            # Nix language support and IDE features
+        esbenp.prettier-vscode        # Prettier formatter
       ];
     };
   };
@@ -33,12 +35,25 @@
 
   # Packages for the user profile (optional)
   home.packages = with pkgs; [
-    btop
-    brave
-    code-cursor
-    nerd-fonts.jetbrains-mono
-    eza
-    bat
+    # --- Games ---
+    zeroad                # 0 A.D., a free, open-source real-time strategy game
+
+    # --- System Monitoring ---
+    btop                  # Resource monitor for CPU, memory, disks, network, and processes
+
+    # --- Browsers ---
+    brave                 # Privacy-focused web browser
+
+    # --- AI & Coding Tools ---
+    claude-code           # Claude AI code assistant 
+    code-cursor           # AI-powered code navigation and editing tool
+
+    # --- Fonts ---
+    nerd-fonts.jetbrains-mono # JetBrains Mono font patched with Nerd Fonts symbols
+
+    # --- CLI Utilities ---
+    eza                   # Modern replacement for 'ls' with more features and better defaults
+    bat                   # 'cat' clone with syntax highlighting and Git integration
   ];
 
   home.stateVersion = "25.05";
