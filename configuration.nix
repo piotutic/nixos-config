@@ -1,8 +1,9 @@
 { config, pkgs, lib, modulesPath, ... }:
 
 {
-  imports =
-    [ /etc/nixos/hardware-configuration.nix ];
+  imports = [
+    /etc/nixos/hardware-configuration.nix
+  ];
 
   # Bootloader
   boot.loader.systemd-boot.enable = true;
@@ -60,6 +61,7 @@
   environment.systemPackages = with pkgs; [
     wget
     curl
+    pciutils  # For lspci to detect hardware
   ];
 
   # Enable zsh system-wide
