@@ -16,6 +16,12 @@
   # Networking
   networking.networkmanager.enable = true;
 
+  # 🔒 Firewall rule to allow Next.js dev server
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 3000 ];
+  };
+
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
@@ -69,4 +75,4 @@
 
   # Match initial install’s state version
   system.stateVersion = "25.05";
-} 
+}
