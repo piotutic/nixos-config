@@ -9,52 +9,104 @@
 
   home.username = "pio";
   home.homeDirectory = "/home/pio";
+  home.stateVersion = "25.05";
+
   programs.home-manager.enable = true;
 
-  # VS Code with extensions
+  # Development Tools
   programs.vscode = {
     enable = true;
     profiles.default = {
       enableUpdateCheck = false;
       enableExtensionUpdateCheck = false;
       extensions = with pkgs.vscode-extensions; [
-        ms-python.python              # Python language support
-        ms-vscode.cpptools            # C/C++ language support
-        jnoortheen.nix-ide            # Nix language support and IDE features
-        esbenp.prettier-vscode        # Prettier formatter
+        ms-python.python
+        ms-vscode.cpptools
+        jnoortheen.nix-ide
+        esbenp.prettier-vscode
       ];
     };
   };
 
-  # Git
   programs.git = {
     enable = true;
     userName = "piotutic";
     userEmail = "piotutic@yahoo.com";
   };
 
-  # Packages for the user profile (optional)
+  programs.gh = {
+    enable = true;
+    gitCredentialHelper = {
+      enable = true;
+      hosts = [ "github.com" "gist.github.com" ];
+    };
+    settings = {
+      editor = "vim";
+      git_protocol = "https";
+      aliases = {
+        co = "pr checkout";
+        pv = "pr view";
+        pc = "pr create";
+        rc = "repo clone";
+        rv = "repo view";
+        rl = "repo list";
+      };
+    };
+    extensions = with pkgs; [
+      gh-dash
+    ];
+  };
+
+  programs.gh-dash = {
+    enable = true;
+    settings = {
+      prSections = [
+        {
+          title = "My Pull Requests";
+          filters = "is:open author:@me";
+        }
+        {
+          title = "Needs My Review";
+          filters = "is:open review-requested:@me";
+        }
+        {
+          title = "Recently Updated";
+          filters = "is:open sort:updated-desc";
+        }
+      ];
+      issuesSections = [
+        {
+          title = "My Issues";
+          filters = "is:open author:@me";
+        }
+        {
+          title = "Assigned to Me";
+          filters = "is:open assignee:@me";
+        }
+      ];
+    };
+  };
+
+  # User Packages
   home.packages = with pkgs; [
-    # --- Games ---
-    zeroad                # 0 A.D., a free, open-source real-time strategy game
+    # Games
+    zeroad
 
-    # --- System Monitoring ---
-    btop                  # Resource monitor for CPU, memory, disks, network, and processes
+    # System Monitoring
+    btop
 
-    # --- Browsers ---
-    brave                 # Privacy-focused web browser
+    # Browsers
+    brave
 
-    # --- AI & Coding Tools ---
-    claude-code           # Claude AI code assistant 
-    code-cursor           # AI-powered code navigation and editing tool
+    # AI & Coding Tools
+    claude-code
+    code-cursor
 
-    # --- Fonts ---
-    nerd-fonts.jetbrains-mono # JetBrains Mono font patched with Nerd Fonts symbols
+    # Fonts
+    nerd-fonts.jetbrains-mono
 
-    # --- CLI Utilities ---
-    eza                   # Modern replacement for 'ls' with more features and better defaults
-    bat                   # 'cat' clone with syntax highlighting and Git integration
+    # CLI Utilities
+    eza
+    bat
   ];
-
-  home.stateVersion = "25.05";
-} 
+}
