@@ -3,8 +3,12 @@
 {
   imports = [
     /etc/nixos/hardware-configuration.nix
+    ./modules/disable-suspend.nix
   ];
-
+  
+  # Disable and modify suspend to use shutdown instead
+  disableSuspend.enable = true;
+  
   # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
