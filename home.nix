@@ -91,6 +91,7 @@
   home.packages = with pkgs; [
     # Games
     zeroad
+    veloren
 
     # System Monitoring
     btop
