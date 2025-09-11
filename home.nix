@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   imports = [
     ./modules/zsh.nix
     ./modules/starship.nix
@@ -25,6 +27,18 @@
         jnoortheen.nix-ide
         esbenp.prettier-vscode
       ];
+      userSettings = {
+        # Global formatting on save
+        "editor.formatOnSave" = true;
+
+        # Nix-specific formatting
+        "[nix]" = {
+          "editor.defaultFormatter" = "jnoortheen.nix-ide";
+        };
+
+        # Tell nix-ide which formatter to use (Alejandra here)
+        "nix.formatterPath" = "${pkgs.alejandra}/bin/alejandra";
+      };
     };
   };
 
@@ -38,7 +52,7 @@
     enable = true;
     gitCredentialHelper = {
       enable = true;
-      hosts = [ "github.com" "gist.github.com" ];
+      hosts = ["github.com" "gist.github.com"];
     };
     settings = {
       editor = "vim";
@@ -103,11 +117,18 @@
     claude-code
     code-cursor
 
+    # Communication
+    discord
+    slack
+
     # Fonts
     nerd-fonts.jetbrains-mono
 
     # CLI Utilities
     eza
     bat
+
+    # Nix Formatter
+    alejandra
   ];
 }
