@@ -130,5 +130,8 @@
 
     # Nix Formatter
     alejandra
+
+    # Video Editing
+    davinci-resolve
   ];
 }
