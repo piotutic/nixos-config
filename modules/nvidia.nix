@@ -105,6 +105,8 @@ in
       # NVIDIA control panel
       nvidia-vaapi-driver  # For hardware video acceleration
       
+      nvitop
+      
       # Optional: Add if you need CUDA development
       # cudatoolkit
       # cudnn
