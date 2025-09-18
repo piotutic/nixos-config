@@ -1,14 +1,18 @@
-{ config, pkgs, lib, modulesPath, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  modulesPath,
+  ...
+}: {
   imports = [
     /etc/nixos/hardware-configuration.nix
     ./modules/disable-suspend.nix
   ];
-  
+
   # Disable and modify suspend to use shutdown instead
   disableSuspend.enable = true;
-  
+
   # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -23,7 +27,7 @@
   # 🔒 Firewall rule to allow Next.js dev server
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 3000 ];
+    allowedTCPPorts = [3000];
   };
 
   # Locale
@@ -33,6 +37,10 @@
   services.xserver.enable = true;
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
+
+  environment.gnome.excludePackages = [
+    pkgs.totem
+  ];
 
   services.xserver.xkb.layout = "us";
 
@@ -50,7 +58,7 @@
   };
 
   # Nix features
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 
   # Unfree allowed globally
   nixpkgs.config.allowUnfree = true;
@@ -59,7 +67,7 @@
   users.users.pio = {
     isNormalUser = true;
     description = "Pio";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = ["networkmanager" "wheel"];
     shell = pkgs.zsh;
   };
 
@@ -71,7 +79,7 @@
   environment.systemPackages = with pkgs; [
     wget
     curl
-    pciutils  # For lspci to detect hardware
+    pciutils # For lspci to detect hardware
   ];
 
   # Enable zsh system-wide

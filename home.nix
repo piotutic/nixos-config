@@ -131,7 +131,13 @@
     # Nix Formatter
     alejandra
 
+    # Media Player
+    vlc
+
     # Video Editing
-    davinci-resolve
+    ffmpeg-full
+
+    # Screen Recording
+    obs-studio
   ];
 }
