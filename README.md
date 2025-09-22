@@ -8,12 +8,14 @@ Modern NixOS configuration using flakes with Home Manager integration and automa
 # Rebuild system
 sudo nixos-rebuild switch --impure --flake .#pio
 
-# Update and rebuild  
+# Update and rebuild
 nix flake update && sudo nixos-rebuild switch --impure --flake .#pio
 
 # Use aliases (configured in zsh)
 update    # rebuild system
 upgrade   # update + rebuild
+nix-gc    # "sudo nix-collect-garbage -d";
+nix-dev   # "nix develop --profile .nix-profile/.nix-profile"
 ```
 
 ## Structure
@@ -43,6 +45,7 @@ upgrade   # update + rebuild
 ## Documentation
 
 See [`docs/`](docs/) for detailed documentation:
+
 - [System Management](docs/system-management.md) - Rebuilds, rollbacks, garbage collection
 - [NVIDIA Module](docs/modules/nvidia.md) - GPU driver configuration
 

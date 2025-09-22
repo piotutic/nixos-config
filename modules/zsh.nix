@@ -57,6 +57,7 @@
       update = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio";
       upgrade = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio --upgrade";
       nix-gc = "sudo nix-collect-garbage -d";
+      nix-dev = "nix develop --profile .nix-profile/.nix-profile"
       
       # Development
       # py = "python3";
