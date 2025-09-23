@@ -77,9 +77,6 @@
 
   # Base system packages (user apps via Home Manager)
   environment.systemPackages = with pkgs; [
-    wget
-    curl
-    pciutils # For lspci to detect hardware
   ];
 
   # Enable zsh system-wide

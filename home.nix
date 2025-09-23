@@ -139,5 +139,14 @@
 
     # Screen Recording
     obs-studio
+
+    # Development tools
+    wget
+    curl
+    pciutils # For lspci to detect hardware
+    just
+    direnv
+    tmux
+    jq
   ];
 }
