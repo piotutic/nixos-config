@@ -140,6 +140,9 @@
     # Screen Recording
     obs-studio
 
+    # Personal knowledge base
+    obsidian
+
     # Development tools
     wget
     curl
