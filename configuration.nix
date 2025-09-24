@@ -71,6 +71,12 @@
     shell = pkgs.zsh;
   };
 
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    # Add any missing dynamic libraries for unpackaged programs
+    # here, NOT in environment.systemPackages
+  ];
+
   # Sudo for wheel without password (optional, remove if undesired)
   security.sudo.enable = true;
   security.sudo.wheelNeedsPassword = false;
