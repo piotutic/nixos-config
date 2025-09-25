@@ -8,6 +8,7 @@
   imports = [
     /etc/nixos/hardware-configuration.nix
     ./modules/disable-suspend.nix
+    ./modules/gc-optimization.nix
   ];
 
   # Disable and modify suspend to use shutdown instead
