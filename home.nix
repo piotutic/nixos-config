@@ -115,7 +115,6 @@
 
     # AI & Coding Tools
     claude-code
-    code-cursor
 
     # Communication
     discord
