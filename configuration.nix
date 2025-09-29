@@ -7,12 +7,17 @@
 }: {
   imports = [
     /etc/nixos/hardware-configuration.nix
-    ./modules/disable-suspend.nix
-    ./modules/gc-optimization.nix
+    ./modules/system/disable-suspend.nix
+    ./modules/system/gc-optimization.nix
+    ./modules/development/containers.nix
+    ./modules/desktop/desktop.nix
   ];
 
   # Disable and modify suspend to use shutdown instead
   disableSuspend.enable = true;
+
+  # Enable container support (Docker with rootless mode)
+  containerSupport.enable = true;
 
   # Bootloader
   boot.loader.systemd-boot.enable = true;
@@ -34,16 +39,6 @@
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # X11 + GNOME (adjust as needed)
-  services.xserver.enable = true;
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
-
-  environment.gnome.excludePackages = [
-    pkgs.totem
-  ];
-
-  services.xserver.xkb.layout = "us";
 
   # Printing
   services.printing.enable = true;

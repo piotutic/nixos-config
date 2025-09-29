@@ -4,9 +4,9 @@
   ...
 }: {
   imports = [
-    ./modules/zsh.nix
-    ./modules/starship.nix
-    ./modules/kitty.nix
+    ./modules/development/zsh.nix
+    ./modules/development/starship.nix
+    ./modules/development/kitty.nix
   ];
 
   home.username = "pio";
@@ -46,6 +46,99 @@
     enable = true;
     userName = "piotutic";
     userEmail = "piotutic@yahoo.com";
+
+    # Better defaults
+    extraConfig = {
+      init.defaultBranch = "main";
+      pull.rebase = true;
+      push.autoSetupRemote = true;
+      merge.conflictStyle = "zdiff3";
+      diff.algorithm = "histogram";
+      log.date = "iso";
+      core.autocrlf = "input";
+      core.ignoreCase = false;
+      branch.autoSetupRebase = "always";
+      rerere.enabled = true;
+    };
+
+    # Enhanced aliases
+    aliases = {
+      # Basic shortcuts
+      co = "checkout";
+      br = "branch";
+      ci = "commit";
+      st = "status";
+
+      # Advanced shortcuts
+      cob = "checkout -b";
+      com = "checkout main";
+      cod = "checkout develop";
+
+      # Commit shortcuts
+      ca = "commit -a";
+      cam = "commit -am";
+      amend = "commit --amend";
+      amendn = "commit --amend --no-edit";
+
+      # Log aliases
+      lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
+      lga = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all";
+      lol = "log --oneline";
+      lola = "log --oneline --all";
+
+      # Diff aliases
+      df = "diff";
+      dfc = "diff --cached";
+      dfh = "diff HEAD~1";
+
+      # Status and info
+      s = "status -s";
+      ss = "status";
+      info = "remote -v";
+
+      # Stash aliases
+      sl = "stash list";
+      sa = "stash apply";
+      ssh = "stash show";
+      sp = "stash pop";
+
+      # Reset aliases
+      r = "reset";
+      r1 = "reset HEAD^";
+      r2 = "reset HEAD^^";
+      rh = "reset --hard";
+      rh1 = "reset HEAD^ --hard";
+      rh2 = "reset HEAD^^ --hard";
+
+      # Remote aliases
+      rem = "remote";
+      rema = "remote add";
+      remr = "remote rm";
+      remv = "remote -v";
+    };
+
+    # Better diff and merge tools
+    delta.enable = true;
+    delta.options = {
+      navigate = true;
+      light = false;
+      side-by-side = true;
+    };
+  };
+
+  # Direnv for automatic environment loading
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true;
+
+    config = {
+      # Global direnv configuration
+      global = {
+        hide_env_diff = true;
+        warn_timeout = "5m";
+      };
+    };
   };
 
   programs.gh = {
@@ -126,6 +219,8 @@
     # CLI Utilities
     eza
     bat
+    fd
+    ripgrep
 
     # Nix Formatter
     alejandra
@@ -147,7 +242,6 @@
     curl
     pciutils # For lspci to detect hardware
     just
-    direnv
     tmux
     jq
   ];

@@ -19,7 +19,7 @@
           specialArgs = { inherit inputs; };
           modules = [
             ./configuration.nix
-            ./modules/nvidia.nix
+            ./modules/hardware/nvidia.nix
 
             home-manager.nixosModules.home-manager
             {
