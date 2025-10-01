@@ -16,31 +16,7 @@
   programs.home-manager.enable = true;
 
   # Development Tools
-  programs.vscode = {
-    enable = true;
-    profiles.default = {
-      enableUpdateCheck = false;
-      enableExtensionUpdateCheck = false;
-      extensions = with pkgs.vscode-extensions; [
-        ms-python.python
-        ms-vscode.cpptools
-        jnoortheen.nix-ide
-        esbenp.prettier-vscode
-      ];
-      userSettings = {
-        # Global formatting on save
-        "editor.formatOnSave" = true;
-
-        # Nix-specific formatting
-        "[nix]" = {
-          "editor.defaultFormatter" = "jnoortheen.nix-ide";
-        };
-
-        # Tell nix-ide which formatter to use (Alejandra here)
-        "nix.formatterPath" = "${pkgs.alejandra}/bin/alejandra";
-      };
-    };
-  };
+  # VSCode-FHS is installed as a package below for better extension compatibility
 
   programs.git = {
     enable = true;
@@ -206,9 +182,6 @@
     # Browsers
     brave
 
-    # AI & Coding Tools
-    claude-code
-
     # Communication
     discord
     slack
@@ -244,5 +217,8 @@
     just
     tmux
     jq
+    vscode-fhs # FHS-compliant VSCode for better extension compatibility
+    go_1_25
+    nodejs_24
   ];
 }
