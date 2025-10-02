@@ -220,5 +220,11 @@
     vscode-fhs # FHS-compliant VSCode for better extension compatibility
     go_1_25
     nodejs_24
+    gnumake
+
+    # Metrics and Dashboards
+    prometheus
+    grafana
+    pgadmin4-desktopmode
   ];
 }
