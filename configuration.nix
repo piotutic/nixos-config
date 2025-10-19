@@ -1,14 +1,17 @@
-{ config, pkgs, lib, modulesPath, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  modulesPath,
+  ...
+}: {
   imports = [
     /etc/nixos/hardware-configuration.nix
-    ./modules/disable-suspend.nix
+    ./modules/system.nix
+    ./modules/containers.nix
+    ./modules/desktop.nix
   ];
-  
-  # Disable and modify suspend to use shutdown instead
-  disableSuspend.enable = true;
-  
+
   # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -23,18 +26,11 @@
   # 🔒 Firewall rule to allow Next.js dev server
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 3000 ];
+    allowedTCPPorts = [3000];
   };
 
   # Locale
   i18n.defaultLocale = "en_US.UTF-8";
-
-  # X11 + GNOME (adjust as needed)
-  services.xserver.enable = true;
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
-
-  services.xserver.xkb.layout = "us";
 
   # Printing
   services.printing.enable = true;
@@ -50,7 +46,7 @@
   };
 
   # Nix features
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 
   # Unfree allowed globally
   nixpkgs.config.allowUnfree = true;
@@ -59,9 +55,15 @@
   users.users.pio = {
     isNormalUser = true;
     description = "Pio";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = ["networkmanager" "wheel"];
     shell = pkgs.zsh;
   };
+
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    # Add any missing dynamic libraries for unpackaged programs
+    # here, NOT in environment.systemPackages
+  ];
 
   # Sudo for wheel without password (optional, remove if undesired)
   security.sudo.enable = true;
@@ -69,9 +71,6 @@
 
   # Base system packages (user apps via Home Manager)
   environment.systemPackages = with pkgs; [
-    wget
-    curl
-    pciutils  # For lspci to detect hardware
   ];
 
   # Enable zsh system-wide
