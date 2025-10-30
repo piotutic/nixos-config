@@ -202,8 +202,8 @@
       gl = "git pull";
 
       # NixOS
-      update = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio";
-      upgrade = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio --upgrade";
+      update = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio && nixos-auto-commit";
+      upgrade = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio --upgrade && nixos-auto-commit";
       nix-gc = "sudo nix-collect-garbage -d";
       nix-dev = "nix develop --profile .nix-profile/profile";
     };
