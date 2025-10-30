@@ -392,5 +392,8 @@
     vscode-fhs # FHS-compliant VSCode for better extension compatibility
     gnumake
     claude-code-nix
+
+    # Torrents
+    qbittorrent
   ];
 }
