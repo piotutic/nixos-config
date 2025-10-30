@@ -205,6 +205,7 @@
       update = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio";
       upgrade = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio --upgrade";
       nix-gc = "sudo nix-collect-garbage -d";
+      nix-dev = "nix develop --profile .nix-profile/profile";
     };
 
     initContent = ''
@@ -389,8 +390,6 @@
     tmux
     jq
     vscode-fhs # FHS-compliant VSCode for better extension compatibility
-    go_1_25
-    nodejs_24
     gnumake
     claude-code-nix
   ];
