@@ -51,9 +51,23 @@
       Restart = "always";
       RestartSec = "10";
 
-      # Resource limits
-      MemoryMax = "2G";
-      TasksMax = 256;
+      # Resource limits - prevent runaway processes from taking down the system
+      MemoryMax = "4G";              # Max RAM usage (up from 2G)
+      TasksMax = 512;                # Max threads/processes (up from 256)
+      CPUQuota = "300%";             # Max 3 CPU cores worth of usage
+      LimitNOFILE = 8192;            # Max open files/connections
+
+      # Restart protection - prevent infinite crash loops
+      StartLimitBurst = 5;           # Max 5 restart attempts
+      StartLimitIntervalSec = 60;    # Within 60 seconds
+      # After 5 crashes in 60s, systemd stops trying
+
+      # Timeout control - prevent hanging on shutdown
+      TimeoutStopSec = 30;           # Force kill after 30s if won't stop
+
+      # Process management
+      KillMode = "mixed";            # SIGTERM to main process, SIGKILL to children
+      OOMScoreAdjust = 500;          # Make n8n first candidate for OOM killer (protects system)
     };
   };
 
