@@ -10,6 +10,7 @@
     ./modules/system.nix
     ./modules/containers.nix
     ./modules/desktop.nix
+    ./modules/mullvad.nix
   ];
 
   # Bootloader
@@ -18,7 +19,7 @@
 
   # Hostname and time
   networking.hostName = "nixos";
-  time.timeZone = "Europe/Zagreb";
+  time.timeZone = "America/New_York";
 
   # Networking
   networking.networkmanager.enable = true;
