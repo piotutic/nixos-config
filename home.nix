@@ -18,11 +18,15 @@
 
   programs.git = {
     enable = true;
-    userName = "piotutic";
-    userEmail = "piotutic@yahoo.com";
 
-    # Better defaults
-    extraConfig = {
+    settings = {
+      # User configuration
+      user = {
+        name = "piotutic";
+        email = "piotutic@yahoo.com";
+      };
+
+      # Better defaults
       init.defaultBranch = "main";
       pull.rebase = true;
       push.autoSetupRemote = true;
@@ -33,67 +37,70 @@
       core.ignoreCase = false;
       branch.autoSetupRebase = "always";
       rerere.enabled = true;
+
+      # Enhanced aliases
+      alias = {
+        # Basic shortcuts
+        co = "checkout";
+        br = "branch";
+        ci = "commit";
+        st = "status";
+
+        # Advanced shortcuts
+        cob = "checkout -b";
+        com = "checkout main";
+        cod = "checkout develop";
+
+        # Commit shortcuts
+        ca = "commit -a";
+        cam = "commit -am";
+        amend = "commit --amend";
+        amendn = "commit --amend --no-edit";
+
+        # Log aliases
+        lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
+        lga = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all";
+        lol = "log --oneline";
+        lola = "log --oneline --all";
+
+        # Diff aliases
+        df = "diff";
+        dfc = "diff --cached";
+        dfh = "diff HEAD~1";
+
+        # Status and info
+        s = "status -s";
+        ss = "status";
+        info = "remote -v";
+
+        # Stash aliases
+        sl = "stash list";
+        sa = "stash apply";
+        ssh = "stash show";
+        sp = "stash pop";
+
+        # Reset aliases
+        r = "reset";
+        r1 = "reset HEAD^";
+        r2 = "reset HEAD^^";
+        rh = "reset --hard";
+        rh1 = "reset HEAD^ --hard";
+        rh2 = "reset HEAD^^ --hard";
+
+        # Remote aliases
+        rem = "remote";
+        rema = "remote add";
+        remr = "remote rm";
+        remv = "remote -v";
+      };
     };
+  };
 
-    # Enhanced aliases
-    aliases = {
-      # Basic shortcuts
-      co = "checkout";
-      br = "branch";
-      ci = "commit";
-      st = "status";
-
-      # Advanced shortcuts
-      cob = "checkout -b";
-      com = "checkout main";
-      cod = "checkout develop";
-
-      # Commit shortcuts
-      ca = "commit -a";
-      cam = "commit -am";
-      amend = "commit --amend";
-      amendn = "commit --amend --no-edit";
-
-      # Log aliases
-      lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
-      lga = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all";
-      lol = "log --oneline";
-      lola = "log --oneline --all";
-
-      # Diff aliases
-      df = "diff";
-      dfc = "diff --cached";
-      dfh = "diff HEAD~1";
-
-      # Status and info
-      s = "status -s";
-      ss = "status";
-      info = "remote -v";
-
-      # Stash aliases
-      sl = "stash list";
-      sa = "stash apply";
-      ssh = "stash show";
-      sp = "stash pop";
-
-      # Reset aliases
-      r = "reset";
-      r1 = "reset HEAD^";
-      r2 = "reset HEAD^^";
-      rh = "reset --hard";
-      rh1 = "reset HEAD^ --hard";
-      rh2 = "reset HEAD^^ --hard";
-
-      # Remote aliases
-      rem = "remote";
-      rema = "remote add";
-      remr = "remote rm";
-      remv = "remote -v";
-    };
-
-    # Better diff and merge tools
-    delta.enable = true;
-    delta.options = {
+  # Delta - Better diff and merge tools
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
       navigate = true;
       light = false;
       side-by-side = true;
@@ -353,7 +360,7 @@
     # Fonts
     noto-fonts
     noto-fonts-cjk-sans
-    noto-fonts-emoji
+    noto-fonts-color-emoji
     liberation_ttf
     fira-code
     fira-code-symbols
