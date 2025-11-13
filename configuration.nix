@@ -11,7 +11,6 @@
     ./modules/containers.nix
     ./modules/desktop.nix
     ./modules/mullvad.nix
-    ./modules/n8n.nix
     ./modules/auto-commit.nix
   ];
 
