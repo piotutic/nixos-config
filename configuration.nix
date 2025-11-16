@@ -12,6 +12,7 @@
     ./modules/desktop.nix
     ./modules/mullvad.nix
     ./modules/auto-commit.nix
+    ./modules/plymouth.nix
   ];
 
   # Bootloader
