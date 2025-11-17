@@ -4,8 +4,7 @@
   # Plymouth boot splash screen
   boot.plymouth = {
     enable = true;
-    theme = "cybernetic";
-    themePackages = [ pkgs.adi1090x-plymouth-themes ];
+    theme = "bgrt";
   };
 
   # Silent boot configuration with error visibility

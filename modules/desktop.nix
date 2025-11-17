@@ -51,7 +51,7 @@
     playerctl
     pavucontrol
     loupe
-    gimp
+    # gimp - moved to Flatpak
 
     # System tools
     gnome-screenshot
@@ -66,6 +66,12 @@
 
   # Services
   services.flatpak.enable = true;
+
+  # Automatically add Flathub repository
+  system.activationScripts.flathub = ''
+    ${pkgs.flatpak}/bin/flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  '';
+
   services.tumbler.enable = true;
   services.geoclue2.enable = true;
   services.blueman.enable = true;

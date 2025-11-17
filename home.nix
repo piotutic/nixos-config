@@ -370,11 +370,11 @@
     btop
 
     # Browsers
-    brave
+    # brave - moved to Flatpak
 
     # Communication
-    discord
-    slack
+    # discord - moved to Flatpak
+    # slack - moved to Flatpak
 
     # CLI Utilities
     eza
@@ -384,12 +384,12 @@
     alejandra # Nix formatter
 
     # Media
-    vlc
+    # vlc - moved to Flatpak
     ffmpeg-full
-    obs-studio
+    # obs-studio - moved to Flatpak
 
     # Personal knowledge base
-    obsidian
+    # obsidian - moved to Flatpak
 
     # Development tools
     wget
@@ -402,6 +402,6 @@
     claude-code-nix
 
     # Torrents
-    qbittorrent
+    # qbittorrent - moved to Flatpak
   ];
 }
