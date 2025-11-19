@@ -19,6 +19,11 @@
   programs.git = {
     enable = true;
 
+    ignores = [
+      ".nix-profile"
+      "**/.claude/settings.local.json"
+    ];
+
     settings = {
       # User configuration
       user = {
@@ -213,7 +218,7 @@
       upgrade = "cd /home/pio/nixos-config && nix flake update && sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio && nixos-auto-commit";
       upgrade-claude = "cd /home/pio/nixos-config && nix flake update claude-code && sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio && nixos-auto-commit";
       nix-gc = "sudo nix-collect-garbage -d";
-      nix-dev = "nix develop --profile .nix-profile/profile";
+      nix-dev = "nix develop --profile ./.nix-profile";
     };
 
     initContent = ''
