@@ -13,6 +13,7 @@
     ./modules/mullvad.nix
     ./modules/auto-commit.nix
     ./modules/plymouth.nix
+    ./modules/hardware-optimizations.nix
   ];
 
   # Bootloader

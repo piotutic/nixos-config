@@ -50,4 +50,9 @@
   systemd.services.docker = {
     wantedBy = lib.mkOverride 50 [];
   };
+
+  # Don't start rootless Docker at login (start on demand)
+  systemd.user.services.docker = {
+    wantedBy = lib.mkForce [];
+  };
 }
