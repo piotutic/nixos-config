@@ -25,9 +25,6 @@ in {
         intel-media-driver
         intel-compute-runtime
         vpl-gpu-rt
-      ] ++
-      lib.optionals hasAMD [
-        amdvlk
       ];
   };
 
