@@ -50,7 +50,11 @@
   };
 
   # Nix features
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings = {
+    experimental-features = ["nix-command" "flakes"];
+    cores = 6; # cores per build job
+    max-jobs = 2; # parallel jobs (6×2=12 cores, leaves 4 for system)
+  };
 
   # Unfree allowed globally
   nixpkgs.config.allowUnfree = true;

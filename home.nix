@@ -389,12 +389,9 @@
     alejandra # Nix formatter
 
     # Media
-    # vlc - moved to Flatpak
     ffmpeg-full
-    # obs-studio - moved to Flatpak
-
-    # Personal knowledge base
-    # obsidian - moved to Flatpak
+    davinci-resolve
+    handbrake # GUI for video conversion 
 
     # Development tools
     wget
