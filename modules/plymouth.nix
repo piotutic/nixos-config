@@ -15,7 +15,6 @@
     "quiet"              # Hide most boot messages
     "splash"             # Enable Plymouth splash screen
     "boot.shell_on_fail" # Drop to shell if boot fails (for debugging)
-    "nvme.poll_queues=16"  # Force NVMe queues to polling (Arrow Lake GSI issue)
   ];
 
   # Optional: Hide boot menu for instant boot (comment out if you want to see boot menu)
