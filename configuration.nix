@@ -14,6 +14,7 @@
     ./modules/auto-commit.nix
     ./modules/plymouth.nix
     ./modules/hardware-optimizations.nix
+    ./modules/battery-management.nix
   ];
 
   # Bootloader
@@ -84,6 +85,6 @@
   # Enable zsh system-wide
   programs.zsh.enable = true;
 
-  # Match initial install’s state version
+  # Match initial install's state version
   system.stateVersion = "25.05";
 }
