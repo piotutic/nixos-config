@@ -26,10 +26,11 @@
   # Networking
   networking.networkmanager.enable = true;
 
-  # 🔒 Firewall rule to allow Next.js dev server
+  # 🔒 Firewall rules
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [3000];
+    allowedTCPPorts = [3000 53317]; # Next.js dev server, LocalSend
+    allowedUDPPorts = [53317]; # LocalSend
   };
 
   # Locale
