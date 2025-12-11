@@ -375,11 +375,10 @@
     btop
 
     # Browsers
-    # brave - moved to Flatpak
+    # zen & chrome - moved to Flatpak
 
     # Communication
-    # discord - moved to Flatpak
-    # slack - moved to Flatpak
+    # discord & slack - moved to Flatpak
 
     # CLI Utilities
     eza
@@ -392,7 +391,8 @@
     # vlc - moved to Flatpak
     ffmpeg-full
     # obs-studio - moved to Flatpak
-
+    davinci-resolve
+    
     # Personal knowledge base
     # obsidian - moved to Flatpak
 

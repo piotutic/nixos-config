@@ -18,5 +18,5 @@
   ];
 
   # Optional: Hide boot menu for instant boot (comment out if you want to see boot menu)
-  # boot.loader.timeout = 0;
+  boot.loader.timeout = 0;
 }
