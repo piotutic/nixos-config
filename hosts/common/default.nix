@@ -1,36 +1,25 @@
-{
-  config,
-  pkgs,
-  lib,
-  modulesPath,
-  ...
-}: {
-  imports = [
-    /etc/nixos/hardware-configuration.nix
-    ./modules/system.nix
-    ./modules/containers.nix
-    ./modules/desktop.nix
-    ./modules/mullvad.nix
-    ./modules/auto-commit.nix
-    ./modules/plymouth.nix
-  ];
+# Common NixOS configuration shared across all hosts
+{ config, pkgs, lib, hostname, ... }:
 
+{
   # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Hostname and time
-  networking.hostName = "nixos";
+  # Hostname (passed via specialArgs)
+  networking.hostName = hostname;
+
+  # Timezone
   time.timeZone = "America/New_York";
 
   # Networking
   networking.networkmanager.enable = true;
 
-  # 🔒 Firewall rules
+  # Firewall rules
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [3000 53317]; # Next.js dev server, LocalSend
-    allowedUDPPorts = [53317]; # LocalSend
+    allowedTCPPorts = [ 3000 53317 ]; # Next.js dev server, LocalSend
+    allowedUDPPorts = [ 53317 ]; # LocalSend
   };
 
   # Locale
@@ -50,7 +39,7 @@
   };
 
   # Nix features
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Unfree allowed globally
   nixpkgs.config.allowUnfree = true;
@@ -59,27 +48,26 @@
   users.users.pio = {
     isNormalUser = true;
     description = "Pio";
-    extraGroups = ["networkmanager" "wheel"];
+    extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.zsh;
   };
 
+  # Nix-ld for dynamic linking
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [
-    # Add any missing dynamic libraries for unpackaged programs
-    # here, NOT in environment.systemPackages
+    # Add any missing dynamic libraries for unpackaged programs here
   ];
 
-  # Sudo for wheel without password (optional, remove if undesired)
+  # Sudo for wheel without password
   security.sudo.enable = true;
   security.sudo.wheelNeedsPassword = false;
 
   # Base system packages (user apps via Home Manager)
-  environment.systemPackages = with pkgs; [
-  ];
+  environment.systemPackages = with pkgs; [ ];
 
   # Enable zsh system-wide
   programs.zsh.enable = true;
 
-  # Match initial install’s state version
+  # Match initial install's state version
   system.stateVersion = "25.05";
 }

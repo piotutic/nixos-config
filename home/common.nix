@@ -1,9 +1,7 @@
+# Common Home Manager configuration shared across all hosts
+{ config, pkgs, ... }:
+
 {
-  config,
-  pkgs,
-  claude-code-nix,
-  ...
-}: {
   home.username = "pio";
   home.homeDirectory = "/home/pio";
   home.stateVersion = "25.05";
@@ -12,9 +10,6 @@
 
   # Fonts
   fonts.fontconfig.enable = true;
-
-  # Development Tools
-  # VSCode-FHS is installed as a package below for better extension compatibility
 
   programs.git = {
     enable = true;
@@ -119,7 +114,6 @@
     nix-direnv.enable = true;
 
     config = {
-      # Global direnv configuration
       global = {
         hide_env_diff = true;
         warn_timeout = "5m";
@@ -131,7 +125,7 @@
     enable = true;
     gitCredentialHelper = {
       enable = true;
-      hosts = ["github.com" "gist.github.com"];
+      hosts = [ "github.com" "gist.github.com" ];
     };
     settings = {
       editor = "vim";
@@ -213,10 +207,10 @@
       gp = "git push";
       gl = "git pull";
 
-      # NixOS
-      update = "sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio && nixos-auto-commit";
-      upgrade = "cd /home/pio/nixos-config && nix flake update && sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio && nixos-auto-commit";
-      upgrade-claude = "cd /home/pio/nixos-config && nix flake update claude-code && sudo nixos-rebuild switch --impure --flake /home/pio/nixos-config#pio && nixos-auto-commit";
+      # NixOS - no more --impure needed, auto-detects hostname
+      update = "sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
+      upgrade = "cd /home/pio/nixos-config && nix flake update && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
+      upgrade-claude = "cd /home/pio/nixos-config && nix flake update claude-code && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
       nix-gc = "sudo nix-collect-garbage -d";
       nix-dev = "mkdir -p .nix && nix develop --profile ./.nix/profile";
     };
@@ -256,20 +250,17 @@
     settings = {
       add_newline = false;
 
-      # Prompt character
       character = {
-        success_symbol = "[❯](bold green)";
-        error_symbol = "[❯](bold red)";
+        success_symbol = "[>](bold green)";
+        error_symbol = "[>](bold red)";
       };
 
-      # Directory
       directory = {
         truncation_length = 3;
-        truncation_symbol = "…/";
+        truncation_symbol = ".../";
         style = "bold cyan";
       };
 
-      # Git
       git_branch = {
         symbol = " ";
         style = "bold purple";
@@ -277,26 +268,23 @@
 
       git_status = {
         style = "bold red";
-        ahead = "⇡\${count}";
-        behind = "⇣\${count}";
-        diverged = "⇕";
+        ahead = "^$count";
+        behind = "v$count";
+        diverged = "<>";
         modified = "!";
         staged = "+";
         untracked = "?";
       };
 
-      # Languages
       nodejs.format = "via [$version]($style) ";
       golang.format = "via [$version]($style) ";
       python.format = "via [$version]($style) ";
 
-      # Command duration
       cmd_duration = {
         min_time = 1000;
         format = "took [$duration](bold yellow) ";
       };
 
-      # Simple format
       format = "$directory$git_branch$git_status$character";
       right_format = "$cmd_duration";
     };
@@ -359,54 +347,4 @@
       "ctrl+shift+enter" = "new_window";
     };
   };
-
-  # User Packages
-  home.packages = with pkgs; [
-    # Fonts
-    noto-fonts
-    noto-fonts-cjk-sans
-    noto-fonts-color-emoji
-    liberation_ttf
-    fira-code
-    fira-code-symbols
-    nerd-fonts.jetbrains-mono
-
-    # System Monitoring
-    btop
-
-    # Browsers
-    # zen & chrome - moved to Flatpak
-
-    # Communication
-    # discord & slack - moved to Flatpak
-
-    # CLI Utilities
-    eza
-    bat
-    fd
-    ripgrep
-    alejandra # Nix formatter
-
-    # Media
-    # vlc - moved to Flatpak
-    ffmpeg-full
-    # obs-studio - moved to Flatpak
-    davinci-resolve
-    
-    # Personal knowledge base
-    # obsidian - moved to Flatpak
-
-    # Development tools
-    wget
-    curl
-    just
-    tmux
-    jq
-    vscode-fhs # FHS-compliant VSCode for better extension compatibility
-    gnumake
-    claude-code-nix
-
-    # Torrents
-    # qbittorrent - moved to Flatpak
-  ];
 }
