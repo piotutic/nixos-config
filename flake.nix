@@ -64,6 +64,12 @@
         enableVideoEditing = false;
       };
 
+      # Zenith Desktop - Ryzen 7600 + RTX 4060
+      zenith = mkHost {
+        hostname = "zenith";
+        enableVideoEditing = true;
+      };
+
       # Future devices - uncomment and add hardware.nix when ready:
       #
       # thinkpad = mkHost {
