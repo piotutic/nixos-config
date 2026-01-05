@@ -34,4 +34,11 @@
     cudatoolkit
     nvtopPackages.nvidia
   ];
+
+  # Steam + Proton gaming
+  programs.steam = {
+    enable = true;
+    gamescopeSession.enable = true;
+  };
+  programs.gamemode.enable = true;
 }
