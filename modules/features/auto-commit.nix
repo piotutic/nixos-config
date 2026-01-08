@@ -1,10 +1,9 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
-  # Auto-commit script for NixOS configuration
+# Auto-commit script for NixOS configuration
+{ config, lib, pkgs, ... }:
+
+let
+  cfg = config.pio.features.auto-commit;
+
   nixos-auto-commit = pkgs.writeShellScriptBin "nixos-auto-commit" ''
     #!/usr/bin/env bash
     # Auto-commit script for NixOS configuration changes
@@ -31,8 +30,14 @@
     echo "Config changes committed: $TIMESTAMP"
   '';
 in {
-  # Install auto-commit script to system
-  environment.systemPackages = [
-    nixos-auto-commit
-  ];
+  options.pio.features.auto-commit = {
+    enable = lib.mkEnableOption "NixOS config auto-commit script";
+  };
+
+  config = lib.mkIf cfg.enable {
+    # Install auto-commit script to system
+    environment.systemPackages = [
+      nixos-auto-commit
+    ];
+  };
 }

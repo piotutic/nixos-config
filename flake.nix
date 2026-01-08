@@ -4,10 +4,15 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    claude-code.url = "github:sadjow/claude-code-nix";
+    claude-code = {
+      url = "github:sadjow/claude-code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -20,37 +25,30 @@
     system = "x86_64-linux";
 
     # Helper function to create host configurations
-    mkHost = {
-      hostname,
-      enableVideoEditing ? false,
-    }:
+    mkHost = hostname:
       nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {
           inherit inputs hostname;
         };
         modules = [
-          ./hosts/common
-          ./hosts/${hostname}
+          # Core modules (always enabled)
+          ./modules/core
 
+          # Feature modules (loaded but disabled by default)
+          ./modules/features
+
+          # Host-specific configuration
+          ./hosts/${hostname}.nix
+
+          # Home-manager integration
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.pio = {pkgs, ...}: {
-              imports =
-                [
-                  ./home/common.nix
-                  ./home/packages/base.nix
-                  ./home/packages/development.nix
-                ]
-                ++ (
-                  if enableVideoEditing
-                  then [./home/packages/video-editing.nix]
-                  else []
-                );
-            };
+            home-manager.users.pio = import ./home;
             home-manager.extraSpecialArgs = {
+              inherit inputs;
               claude-code-nix = claude-code.packages.${system}.default;
             };
           }
@@ -58,29 +56,8 @@
       };
   in {
     nixosConfigurations = {
-      # HP 255 G - Weak laptop (no video editing)
-      hp-laptop = mkHost {
-        hostname = "hp-laptop";
-        enableVideoEditing = false;
-      };
-
-      # Zenith Desktop - Ryzen 7600 + RTX 4060
-      zenith = mkHost {
-        hostname = "zenith";
-        enableVideoEditing = true;
-      };
-
-      # Future devices - uncomment and add hardware.nix when ready:
-      #
-      # thinkpad = mkHost {
-      #   hostname = "thinkpad";
-      #   enableVideoEditing = false;  # or true if capable
-      # };
-      #
-      # desktop = mkHost {
-      #   hostname = "desktop";
-      #   enableVideoEditing = true;
-      # };
+      hp-laptop = mkHost "hp-laptop";
+      zenith = mkHost "zenith";
     };
   };
 }

@@ -1,35 +1,49 @@
 # NixOS Configuration
 
-Multi-device NixOS configuration using flakes and Home Manager. Designed for easy management across multiple machines with shared and device-specific configurations.
+Multi-device NixOS configuration using flakes and Home Manager. Designed for easy management across multiple machines with toggleable features per device.
 
 ## Structure
 
 ```
 nixos-config/
-├── flake.nix                 # Main entry point with mkHost helper
-├── flake.lock                # Locked dependency versions
+├── flake.nix                     # Entry point with mkHost helper
+├── flake.lock                    # Locked dependency versions
 │
-├── hosts/                    # Per-device configurations
-│   ├── common/
-│   │   └── default.nix       # Shared system config (all devices)
-│   └── hp-laptop/
-│       ├── default.nix       # HP-specific config & module imports
-│       └── hardware.nix      # Hardware config (from nixos-generate-config)
+├── hosts/                        # Device configurations
+│   ├── hp-laptop.nix             # Single-file host definition
+│   ├── zenith.nix                # Single-file host definition
+│   └── hardware/                 # Hardware configs (generated)
+│       ├── hp-laptop.nix
+│       └── zenith.nix
 │
-├── home/                     # Home Manager configurations
-│   ├── common.nix            # Shared user config (shell, git, programs)
-│   └── packages/
-│       ├── base.nix          # Fonts, CLI tools (all devices)
-│       ├── development.nix   # Dev tools (all devices)
-│       └── video-editing.nix # Heavy media packages (powerful devices only)
+├── modules/
+│   ├── core/                     # Always enabled on all devices
+│   │   ├── default.nix           # Imports all core modules
+│   │   ├── nix.nix               # Flakes, GC, store optimization
+│   │   ├── boot.nix              # Bootloader config
+│   │   ├── networking.nix        # NetworkManager, firewall
+│   │   ├── audio.nix             # PipeWire
+│   │   ├── users.nix             # User accounts, sudo
+│   │   └── options.nix           # pio.* option definitions
+│   │
+│   └── features/                 # Toggleable per device
+│       ├── default.nix           # Imports all features
+│       ├── desktop.nix           # GNOME, Flatpak, multimedia
+│       ├── docker.nix            # Docker rootless + tools
+│       ├── mullvad.nix           # Mullvad VPN
+│       ├── plymouth.nix          # Boot splash
+│       ├── nvidia.nix            # NVIDIA GPU + CUDA
+│       ├── gaming.nix            # Steam, Proton, GameMode
+│       ├── laptop.nix            # Power management
+│       └── auto-commit.nix       # Git auto-commit after rebuild
 │
-└── modules/                  # System feature modules
-    ├── system.nix            # GC, store optimization
-    ├── desktop.nix           # GNOME, Flatpak, multimedia
-    ├── containers.nix        # Docker rootless
-    ├── mullvad.nix           # VPN
-    ├── auto-commit.nix       # Git auto-commit after rebuild
-    └── plymouth.nix          # Boot splash
+└── home/                         # Home Manager configurations
+    ├── default.nix               # Entry point with conditional imports
+    ├── common.nix                # Shared user config (shell, git, programs)
+    └── packages/
+        ├── base.nix              # Fonts, CLI tools (all devices)
+        ├── development.nix       # Dev tools (all devices)
+        └── video-editing.nix     # ffmpeg, DaVinci Resolve (optional)
 ```
 
 ## Quick Start
@@ -45,59 +59,73 @@ upgrade
 nix-gc
 ```
 
-Or manually:
-```bash
-sudo nixos-rebuild switch --flake /home/pio/nixos-config
-```
+## Available Features
+
+Toggle features per device with `pio.features.<name>.enable`:
+
+| Feature | Description | Options |
+|---------|-------------|---------|
+| `desktop` | GNOME desktop, Flatpak, multimedia, Bluetooth | - |
+| `docker` | Docker rootless mode + tools (compose, dive, lazydocker) | `startOnBoot` |
+| `mullvad` | Mullvad VPN with WireGuard | - |
+| `plymouth` | Boot splash screen, silent boot | - |
+| `nvidia` | NVIDIA proprietary drivers, 32-bit support | `cuda` (default: true) |
+| `gaming` | Steam, Proton, GameMode | - |
+| `laptop` | Power management, lid behavior | `lidAction`, `suspendEnabled` |
+| `auto-commit` | Auto-commit config changes after rebuild | - |
+
+Home Manager options:
+
+| Option | Description |
+|--------|-------------|
+| `pio.home.videoEditing` | Include ffmpeg-full and DaVinci Resolve |
+
+## Current Devices
+
+| Device | Hostname | Features Enabled |
+|--------|----------|------------------|
+| HP 255 G | `hp-laptop` | desktop, mullvad, plymouth, laptop, auto-commit |
+| Zenith Desktop | `zenith` | desktop, docker, mullvad, plymouth, nvidia, gaming, auto-commit |
 
 ## Adding a New Device
 
-### 1. On the new device, install NixOS and enable flakes
+### 1. Generate hardware config (on target machine)
 
-Add to your initial `/etc/nixos/configuration.nix`:
-```nix
-{
-  nix.settings.experimental-features = ["nix-command" "flakes"];
-  environment.systemPackages = [ pkgs.git ];
-}
-```
-
-Rebuild: `sudo nixos-rebuild switch`
-
-### 2. Clone this repo
+Boot NixOS installer or run on existing NixOS:
 
 ```bash
-git clone https://github.com/piotutic/nixos-config ~/nixos-config
-cd ~/nixos-config
+sudo nixos-generate-config --show-hardware-config > hardware.nix
 ```
 
-### 3. Create device configuration
+### 2. Copy hardware config to repo
 
 ```bash
-# Create device directory
-mkdir -p hosts/NEW-DEVICE
-
-# Generate hardware config
-nixos-generate-config --show-hardware-config > hosts/NEW-DEVICE/hardware.nix
+cp hardware.nix ~/nixos-config/hosts/hardware/mydevice.nix
 ```
 
-Create `hosts/NEW-DEVICE/default.nix`:
+### 3. Create host file
+
+Create `hosts/mydevice.nix`:
+
 ```nix
-{ config, pkgs, ... }:
+# My Device - short description
+{ ... }:
 
 {
-  imports = [
-    ./hardware.nix
-    ../../modules/system.nix
-    ../../modules/desktop.nix
-    ../../modules/containers.nix    # optional
-    ../../modules/mullvad.nix       # optional
-    ../../modules/auto-commit.nix
-    ../../modules/plymouth.nix
-  ];
+  imports = [ ./hardware/mydevice.nix ];
 
-  # Device-specific settings
-  services.power-profiles-daemon.enable = true;  # for laptops
+  pio.features = {
+    desktop.enable = true;
+    docker.enable = true;
+    mullvad.enable = true;
+    plymouth.enable = true;
+    auto-commit.enable = true;
+    # nvidia.enable = true;     # For NVIDIA GPUs
+    # gaming.enable = true;     # For Steam/gaming
+    # laptop.enable = true;     # For laptops
+  };
+
+  pio.home.videoEditing = false;
 }
 ```
 
@@ -105,66 +133,49 @@ Create `hosts/NEW-DEVICE/default.nix`:
 
 ```nix
 nixosConfigurations = {
-  # Existing devices...
-
-  NEW-DEVICE = mkHost {
-    hostname = "NEW-DEVICE";
-    enableVideoEditing = false;  # true for powerful machines
-  };
+  hp-laptop = mkHost "hp-laptop";
+  zenith = mkHost "zenith";
+  mydevice = mkHost "mydevice";  # Add this line
 };
 ```
 
 ### 5. Build
 
 ```bash
-sudo nixos-rebuild switch --flake .#NEW-DEVICE
+# First install (from NixOS installer)
+sudo nixos-install --flake /path/to/nixos-config#mydevice
+
+# Or rebuild existing system
+sudo nixos-rebuild switch --flake .#mydevice
 ```
 
-After first rebuild, the hostname is set and `update` works automatically.
+## Feature Details
 
-## Configuration Options
+### Desktop (`pio.features.desktop`)
 
-### mkHost Parameters
+- GNOME with extensions (AppIndicator, Dash-to-Dock, Vitals)
+- Flatpak with Flathub
+- Full GStreamer multimedia stack
+- Bluetooth with enhanced settings
+- AppArmor security
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `hostname` | required | Device hostname and config directory name |
-| `enableVideoEditing` | `false` | Include ffmpeg-full and davinci-resolve |
+### Docker (`pio.features.docker`)
 
-### Package Profiles
+- Rootless mode by default
+- Tools: docker-compose, dive, ctop, lazydocker
+- On-demand start (set `startOnBoot = true` for servers)
 
-| Profile | Packages | Used By |
-|---------|----------|---------|
-| `base.nix` | Fonts, btop, eza, bat, fd, ripgrep, alejandra | All devices |
-| `development.nix` | wget, curl, just, tmux, jq, vscode, gnumake, claude-code | All devices |
-| `video-editing.nix` | ffmpeg-full, davinci-resolve | Powerful devices only |
+### NVIDIA (`pio.features.nvidia`)
 
-## Current Devices
+- Proprietary drivers for best performance
+- 32-bit support for Steam/Wine
+- CUDA toolkit and nvtop (disable with `cuda = false`)
 
-| Device | Hostname | Video Editing | Description |
-|--------|----------|---------------|-------------|
-| HP 255 G | `hp-laptop` | No | Weak laptop, power-optimized |
+### Laptop (`pio.features.laptop`)
 
-## Features
-
-### System
-- **Pure flake builds** - No `--impure` flag needed
-- **GNOME Desktop** - Clean desktop with extensions
-- **Automatic GC** - Weekly cleanup, keep last 30 days
-- **Store optimization** - Automatic deduplication
-- **systemd-boot** - Keep last 5 generations
-
-### Development
-- **Docker** - Rootless mode, on-demand start
-- **Modern shell** - zsh + starship + syntax highlighting
-- **Better CLI** - eza, bat, fd, ripgrep, delta
-- **Git** - Extensive aliases, delta diff, gh CLI
-- **VS Code FHS** - Better extension compatibility
-
-### Per-Device Flexibility
-- Hardware configs tracked in git per-device
-- Optional modules (containers, VPN, video editing)
-- Power management for laptops vs desktops
+- Power profiles daemon
+- Configurable lid action: `"suspend"`, `"poweroff"`, `"lock"`, `"ignore"`
+- Suspend disabled by default (enable with `suspendEnabled = true`)
 
 ## Maintenance
 
@@ -172,8 +183,8 @@ After first rebuild, the hostname is set and `update` works automatically.
 # Update all flake inputs
 nix flake update
 
-# Update specific input
-nix flake lock --update-input nixpkgs
+# Update specific input (e.g., claude-code)
+nix flake lock --update-input claude-code
 
 # List generations
 nixos-rebuild list-generations
@@ -181,24 +192,19 @@ nixos-rebuild list-generations
 # Rollback to previous generation
 sudo nixos-rebuild switch --rollback
 
-# Boot into previous generation
-# Select at boot menu (systemd-boot)
+# Test configuration without switching
+sudo nixos-rebuild test --flake .
 ```
 
 ## Customization
 
 ### Add packages for all devices
-
 Edit `home/packages/base.nix` or `home/packages/development.nix`
 
-### Add packages for specific device
+### Add system config for all devices
+Edit files in `modules/core/`
 
-Create a new package file and import conditionally, or add directly to the device's home-manager config in `flake.nix`
-
-### Add system-level config for all devices
-
-Edit `hosts/common/default.nix`
-
-### Add system-level config for one device
-
-Edit `hosts/DEVICE/default.nix`
+### Add a new toggleable feature
+1. Create `modules/features/myfeature.nix` with `pio.features.myfeature.enable` option
+2. Import it in `modules/features/default.nix`
+3. Enable in host files as needed
