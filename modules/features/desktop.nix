@@ -72,9 +72,13 @@ in {
     # Services
     services.flatpak.enable = true;
 
-    # Automatically add Flathub repository
+    # Automatically add Flathub repository when reachable.
+    # Keep activation non-fatal if DNS/network is temporarily unavailable.
     system.activationScripts.flathub = ''
-      ${pkgs.flatpak}/bin/flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+      if ! ${pkgs.flatpak}/bin/flatpak remotes --system --columns=name | ${pkgs.gnugrep}/bin/grep -qx flathub; then
+        ${pkgs.flatpak}/bin/flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || \
+          echo "warning: could not add flathub remote during activation (network may be unavailable)"
+      fi
     '';
 
     services.tumbler.enable = true;

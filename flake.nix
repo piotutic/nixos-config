@@ -13,6 +13,11 @@
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    codex-cli = {
+      url = "github:sadjow/codex-cli-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -20,6 +25,7 @@
     nixpkgs,
     home-manager,
     claude-code,
+    codex-cli,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -50,6 +56,7 @@
             home-manager.extraSpecialArgs = {
               inherit inputs;
               claude-code-nix = claude-code.packages.${system}.default;
+              codex-cli-nix = codex-cli.packages.${system}.default;
             };
           }
         ];

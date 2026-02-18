@@ -211,6 +211,7 @@
       update = "sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
       upgrade = "cd /home/pio/nixos-config && nix flake update && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
       upgrade-claude = "cd /home/pio/nixos-config && nix flake update claude-code && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
+      upgrade-codex = "cd /home/pio/nixos-config && nix flake update codex-cli && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
       nix-gc = "sudo nix-collect-garbage -d";
       nix-dev = "mkdir -p .nix && nix develop --profile ./.nix/profile";
     };

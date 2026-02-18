@@ -1,5 +1,5 @@
 # Development tools - for all devices
-{ pkgs, claude-code-nix, ... }:
+{ pkgs, claude-code-nix, codex-cli-nix, ... }:
 
 {
   home.packages = with pkgs; [
@@ -11,5 +11,6 @@
     vscode-fhs # FHS-compliant VSCode for better extension compatibility
     gnumake
     claude-code-nix
+    codex-cli-nix
   ];
 }
