@@ -1,7 +1,7 @@
 # Home Manager entry point
 # Imports common config and conditionally imports packages based on host config
 # osConfig is automatically provided by home-manager when using the NixOS module
-{ config, pkgs, osConfig, claude-code-nix, ... }:
+{ config, pkgs, osConfig, ... }:
 
 {
   imports = [

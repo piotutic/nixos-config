@@ -9,13 +9,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    claude-code = {
-      url = "github:sadjow/claude-code-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    codex-cli = {
-      url = "github:sadjow/codex-cli-nix";
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -24,8 +19,7 @@
     self,
     nixpkgs,
     home-manager,
-    claude-code,
-    codex-cli,
+    llm-agents,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -55,8 +49,7 @@
             home-manager.users.pio = import ./home;
             home-manager.extraSpecialArgs = {
               inherit inputs;
-              claude-code-nix = claude-code.packages.${system}.default;
-              codex-cli-nix = codex-cli.packages.${system}.default;
+              llm-agents-pkgs = llm-agents.packages.${system};
             };
           }
         ];
