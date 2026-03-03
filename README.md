@@ -46,6 +46,8 @@ nixos-config/
         ├── common/
         └── optional/
             ├── development.nix
+            ├── llm-agents.nix
+            ├── openclaw.nix
             └── video-editing.nix
 ```
 
@@ -61,10 +63,10 @@ nix-gc
 
 - `hp-laptop`
   - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `portable`, `power-management`
-  - home: `common`, `development`
+  - home: `common`, `development`, `llm-agents`, `openclaw`
 - `zenith`
   - system: `common`, `gui`, `docker`, `mullvad`, `plymouth`, `auto-commit`, `nvidia`, `gaming`
-  - home: `common`, `development`, `video-editing`
+  - home: `common`, `development`, `llm-agents`, `openclaw`, `video-editing`
 
 ## Capability Modules
 
@@ -95,7 +97,11 @@ System modules are imported directly by host files.
 Home modules are also imported directly by host files.
 
 - `development`
-  - CLI/dev packages and agent tools
+  - CLI/dev packages
+- `llm-agents`
+  - Codex, Claude Code, Gemini CLI, and OpenCode
+- `openclaw`
+  - imports the upstream OpenClaw Home Manager module and enables it with upstream defaults
 - `video-editing`
   - `ffmpeg-full`, `davinci-resolve`
 
@@ -153,6 +159,8 @@ Create `hosts/mydevice/home.nix`:
   imports = [
     ../../modules/home/common
     ../../modules/home/optional/development.nix
+    ../../modules/home/optional/llm-agents.nix
+    ../../modules/home/optional/openclaw.nix
   ];
 }
 ```

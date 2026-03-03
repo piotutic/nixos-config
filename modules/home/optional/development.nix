@@ -1,4 +1,4 @@
-{ pkgs, llm-agents-pkgs, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -9,9 +9,5 @@
     jq
     vscode-fhs
     gnumake
-    llm-agents-pkgs.codex
-    llm-agents-pkgs.claude-code
-    llm-agents-pkgs.gemini-cli
-    llm-agents-pkgs.opencode
   ];
 }
