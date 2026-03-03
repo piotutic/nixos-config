@@ -1,210 +1,218 @@
 # NixOS Configuration
 
-Multi-device NixOS configuration using flakes and Home Manager. Designed for easy management across multiple machines with toggleable features per device.
+Multi-device NixOS config using flakes and Home Manager. The repo is organized around explicit capability imports: if a host imports a module, it gets that capability. If it does not import the module, that capability does not exist on that machine.
+
+## Mental Model
+
+- `modules/system/common/`: baseline NixOS config shared across almost every machine
+- `modules/system/optional/`: opt-in system capabilities such as `gui`, `docker`, `nvidia`, `portable`
+- `modules/home/common/`: baseline Home Manager config shared across machines
+- `modules/home/optional/`: opt-in user-space packages and tooling
+- `hosts/<name>/`: each host composes the exact system and home modules it needs
+
+There are no global feature toggles. Hosts are the source of truth.
 
 ## Structure
 
-```
+```text
 nixos-config/
-├── flake.nix                     # Entry point with mkHost helper
-├── flake.lock                    # Locked dependency versions
-│
-├── hosts/                        # Device configurations
-│   ├── hp-laptop.nix             # Single-file host definition
-│   ├── zenith.nix                # Single-file host definition
-│   └── hardware/                 # Hardware configs (generated)
+├── flake.nix
+├── hosts/
+│   ├── hp-laptop/
+│   │   ├── default.nix
+│   │   ├── system.nix
+│   │   └── home.nix
+│   ├── zenith/
+│   │   ├── default.nix
+│   │   ├── system.nix
+│   │   └── home.nix
+│   └── hardware/
 │       ├── hp-laptop.nix
 │       └── zenith.nix
-│
-├── modules/
-│   ├── core/                     # Always enabled on all devices
-│   │   ├── default.nix           # Imports all core modules
-│   │   ├── nix.nix               # Flakes, GC, store optimization
-│   │   ├── boot.nix              # Bootloader config
-│   │   ├── networking.nix        # NetworkManager, firewall
-│   │   ├── audio.nix             # PipeWire
-│   │   ├── users.nix             # User accounts, sudo
-│   │   └── options.nix           # pio.* option definitions
-│   │
-│   └── features/                 # Toggleable per device
-│       ├── default.nix           # Imports all features
-│       ├── desktop.nix           # GNOME, Flatpak, multimedia
-│       ├── docker.nix            # Docker rootless + tools
-│       ├── mullvad.nix           # Mullvad VPN
-│       ├── plymouth.nix          # Boot splash
-│       ├── nvidia.nix            # NVIDIA GPU + CUDA
-│       ├── gaming.nix            # Steam, Proton, GameMode
-│       ├── laptop.nix            # Power management
-│       └── auto-commit.nix       # Git auto-commit after rebuild
-│
-└── home/                         # Home Manager configurations
-    ├── default.nix               # Entry point with conditional imports
-    ├── common.nix                # Shared user config (shell, git, programs)
-    └── packages/
-        ├── base.nix              # Fonts, CLI tools (all devices)
-        ├── development.nix       # Dev tools (all devices)
-        └── video-editing.nix     # ffmpeg, DaVinci Resolve (optional)
+└── modules/
+    ├── system/
+    │   ├── common/
+    │   └── optional/
+    │       ├── gui/
+    │       ├── docker.nix
+    │       ├── mullvad.nix
+    │       ├── plymouth.nix
+    │       ├── nvidia.nix
+    │       ├── gaming.nix
+    │       ├── portable.nix
+    │       ├── power-management.nix
+    │       └── auto-commit.nix
+    └── home/
+        ├── common/
+        └── optional/
+            ├── development.nix
+            └── video-editing.nix
 ```
 
 ## Quick Start
 
 ```bash
-# Rebuild system (auto-detects hostname)
 update
-
-# Update flake inputs and rebuild
 upgrade
-
-# Clean old generations
 nix-gc
 ```
 
-## Available Features
+## Current Hosts
 
-Toggle features per device with `pio.features.<name>.enable`:
+- `hp-laptop`
+  - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `portable`, `power-management`
+  - home: `common`, `development`
+- `zenith`
+  - system: `common`, `gui`, `docker`, `mullvad`, `plymouth`, `auto-commit`, `nvidia`, `gaming`
+  - home: `common`, `development`, `video-editing`
 
-| Feature | Description | Options |
-|---------|-------------|---------|
-| `desktop` | GNOME desktop, Flatpak, multimedia, Bluetooth | - |
-| `docker` | Docker rootless mode + tools (compose, dive, lazydocker) | `startOnBoot` |
-| `mullvad` | Mullvad VPN with WireGuard | - |
-| `plymouth` | Boot splash screen, silent boot | - |
-| `nvidia` | NVIDIA proprietary drivers, 32-bit support | `cuda` (default: true) |
-| `gaming` | Steam, Proton, GameMode | - |
-| `laptop` | Power management, lid behavior | `lidAction`, `suspendEnabled` |
-| `auto-commit` | Auto-commit config changes after rebuild | - |
+## Capability Modules
 
-Home Manager options:
+System modules are imported directly by host files.
 
-| Option | Description |
-|--------|-------------|
-| `pio.home.videoEditing` | Include ffmpeg-full and DaVinci Resolve |
+- `gui`
+  - GNOME session, GUI packages, Flatpak, Bluetooth, desktop services
+- `docker`
+  - rootless Docker and tooling
+  - optional knob: `pio.docker.startOnBoot`
+- `mullvad`
+  - Mullvad VPN and WireGuard support
+- `plymouth`
+  - boot splash and quiet boot settings
+- `nvidia`
+  - NVIDIA drivers, 32-bit graphics support
+  - optional knob: `pio.nvidia.cuda`
+- `gaming`
+  - Steam, Proton, GameMode
+- `portable`
+  - lid and suspend behavior
+  - optional knobs: `pio.portable.lidAction`, `pio.portable.suspendEnabled`
+- `power-management`
+  - TLP and AC vs battery tuning
+- `auto-commit`
+  - installs `nixos-auto-commit`
 
-## Current Devices
+Home modules are also imported directly by host files.
 
-| Device | Hostname | Features Enabled |
-|--------|----------|------------------|
-| HP 255 G | `hp-laptop` | desktop, mullvad, plymouth, laptop, auto-commit |
-| Zenith Desktop | `zenith` | desktop, docker, mullvad, plymouth, nvidia, gaming, auto-commit |
+- `development`
+  - CLI/dev packages and agent tools
+- `video-editing`
+  - `ffmpeg-full`, `davinci-resolve`
 
-## Adding a New Device
+## Adding a New Host
 
-### 1. Generate hardware config (on target machine)
-
-Boot NixOS installer or run on existing NixOS:
+### 1. Generate hardware config on the target machine
 
 ```bash
 sudo nixos-generate-config --show-hardware-config > hardware.nix
 ```
 
-### 2. Copy hardware config to repo
+### 2. Copy hardware config into the repo
 
 ```bash
 cp hardware.nix ~/nixos-config/hosts/hardware/mydevice.nix
 ```
 
-### 3. Create host file
+### 3. Create the host folder
 
-Create `hosts/mydevice.nix`:
+Create `hosts/mydevice/default.nix`:
 
 ```nix
-# My Device - short description
 { ... }:
 
 {
-  imports = [ ./hardware/mydevice.nix ];
+  imports = [
+    ../hardware/mydevice.nix
+    ./system.nix
+  ];
 
-  pio.features = {
-    desktop.enable = true;
-    docker.enable = true;
-    mullvad.enable = true;
-    plymouth.enable = true;
-    auto-commit.enable = true;
-    # nvidia.enable = true;     # For NVIDIA GPUs
-    # gaming.enable = true;     # For Steam/gaming
-    # laptop.enable = true;     # For laptops
-  };
-
-  pio.home.videoEditing = false;
+  home-manager.users.pio = import ./home.nix;
 }
 ```
 
-### 4. Add to flake.nix
+Create `hosts/mydevice/system.nix`:
+
+```nix
+{ ... }:
+
+{
+  imports = [
+    ../../modules/system/common
+    ../../modules/system/optional/gui
+    ../../modules/system/optional/mullvad.nix
+  ];
+}
+```
+
+Create `hosts/mydevice/home.nix`:
+
+```nix
+{ ... }:
+
+{
+  imports = [
+    ../../modules/home/common
+    ../../modules/home/optional/development.nix
+  ];
+}
+```
+
+### 4. Add the host to `flake.nix`
 
 ```nix
 nixosConfigurations = {
   hp-laptop = mkHost "hp-laptop";
   zenith = mkHost "zenith";
-  mydevice = mkHost "mydevice";  # Add this line
+  mydevice = mkHost "mydevice";
 };
 ```
 
-### 5. Build
+### 5. Build it
 
 ```bash
-# First install (from NixOS installer)
-sudo nixos-install --flake /path/to/nixos-config#mydevice
-
-# Or rebuild existing system
 sudo nixos-rebuild switch --flake .#mydevice
 ```
 
-## Feature Details
+## Common Customizations
 
-### Desktop (`pio.features.desktop`)
+### Add a capability to one host
 
-- GNOME with extensions (AppIndicator, Dash-to-Dock, Vitals)
-- Flatpak with Flathub
-- Full GStreamer multimedia stack
-- Bluetooth with enhanced settings
-- AppArmor security
+Add the module import to `hosts/<name>/system.nix` or `hosts/<name>/home.nix`.
 
-### Docker (`pio.features.docker`)
+Example: enable Docker only on `zenith`:
 
-- Rootless mode by default
-- Tools: docker-compose, dive, ctop, lazydocker
-- On-demand start (set `startOnBoot = true` for servers)
+```nix
+{
+  imports = [
+    ../../modules/system/common
+    ../../modules/system/optional/gui
+    ../../modules/system/optional/docker.nix
+  ];
+}
+```
 
-### NVIDIA (`pio.features.nvidia`)
+### Adjust behavior inside an imported capability
 
-- Proprietary drivers for best performance
-- 32-bit support for Steam/Wine
-- CUDA toolkit and nvtop (disable with `cuda = false`)
+Use the small set of remaining knobs only when the capability is already imported.
 
-### Laptop (`pio.features.laptop`)
+Example: change lid behavior on `hp-laptop`:
 
-- Power profiles daemon
-- Configurable lid action: `"suspend"`, `"poweroff"`, `"lock"`, `"ignore"`
-- Suspend disabled by default (enable with `suspendEnabled = true`)
+```nix
+{
+  imports = [
+    ../../modules/system/common
+    ../../modules/system/optional/portable.nix
+  ];
+
+  pio.portable.lidAction = "ignore";
+}
+```
 
 ## Maintenance
 
 ```bash
-# Update all flake inputs
 nix flake update
-
-# Update specific input (e.g., claude-code)
-nix flake lock --update-input claude-code
-
-# List generations
 nixos-rebuild list-generations
-
-# Rollback to previous generation
 sudo nixos-rebuild switch --rollback
-
-# Test configuration without switching
 sudo nixos-rebuild test --flake .
 ```
-
-## Customization
-
-### Add packages for all devices
-Edit `home/packages/base.nix` or `home/packages/development.nix`
-
-### Add system config for all devices
-Edit files in `modules/core/`
-
-### Add a new toggleable feature
-1. Create `modules/features/myfeature.nix` with `pio.features.myfeature.enable` option
-2. Import it in `modules/features/default.nix`
-3. Enable in host files as needed

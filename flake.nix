@@ -32,21 +32,14 @@
           inherit inputs hostname;
         };
         modules = [
-          # Core modules (always enabled)
-          ./modules/core
-
-          # Feature modules (loaded but disabled by default)
-          ./modules/features
-
           # Host-specific configuration
-          ./hosts/${hostname}.nix
+          ./hosts/${hostname}
 
           # Home-manager integration
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.pio = import ./home;
             home-manager.extraSpecialArgs = {
               inherit inputs;
               llm-agents-pkgs = llm-agents.packages.${system};
