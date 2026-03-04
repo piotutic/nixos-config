@@ -7,56 +7,50 @@
 }:
 
 let
-  defaultOpenclawPackage = inputs.openclaw.packages.${pkgs.stdenv.hostPlatform.system}.openclaw;
-  openclawGatewayPackage =
-    inputs.openclaw.packages.${pkgs.stdenv.hostPlatform.system}."openclaw-gateway";
-  openclawPackage = config.programs.openclaw.package;
+  system = pkgs.stdenv.hostPlatform.system;
+  homeDir = config.home.homeDirectory;
+  openclawPackage = inputs.openclaw.packages.${system}.openclaw;
+  openclawGatewayPackage = inputs.openclaw.packages.${system}."openclaw-gateway";
   openclawBinary = lib.getExe' openclawGatewayPackage "openclaw";
-  stateDir = config.programs.openclaw.stateDir;
-  workspaceDir = config.programs.openclaw.workspaceDir;
-  controlUiTarget = "${stateDir}/control-ui";
+  stateDir = "${homeDir}/.openclaw";
+  workspaceDir = "${stateDir}/workspace";
+  controlUiDir = "${stateDir}/control-ui";
+  tempControlUiDir = "${controlUiDir}.tmp";
   controlUiSource = "${openclawGatewayPackage}/lib/openclaw/dist/control-ui";
   logDir = "${stateDir}/logs";
   logPath = "${logDir}/gateway.log";
   coreutils = pkgs.coreutils;
+  prepareGateway = pkgs.writeShellScript "openclaw-gateway-prepare" ''
+    set -euo pipefail
+
+    target_dir="${controlUiDir}"
+    temp_dir="${tempControlUiDir}"
+
+    ${lib.getExe' coreutils "mkdir"} -p "${stateDir}" "${workspaceDir}" "${logDir}"
+
+    if [ -e "$temp_dir" ]; then
+      ${lib.getExe' coreutils "chmod"} -R u+w "$temp_dir" || true
+      ${lib.getExe' coreutils "rm"} -rf "$temp_dir"
+    fi
+
+    ${lib.getExe' coreutils "mkdir"} -p "$temp_dir"
+    ${lib.getExe' coreutils "cp"} -R ${controlUiSource}/. "$temp_dir/"
+    ${lib.getExe' coreutils "chmod"} -R u+w "$temp_dir" || true
+
+    if [ -e "$target_dir" ]; then
+      ${lib.getExe' coreutils "chmod"} -R u+w "$target_dir" || true
+      ${lib.getExe' coreutils "rm"} -rf "$target_dir"
+    fi
+
+    ${lib.getExe' coreutils "mv"} "$temp_dir" "$target_dir"
+
+    ${openclawBinary} config set gateway.mode local
+    ${openclawBinary} config set gateway.controlUi.root ${lib.escapeShellArg controlUiDir}
+  '';
 in
 
 {
-  imports = [
-    inputs.openclaw.homeManagerModules.openclaw
-  ];
-
-  # Keep the upstream option schema, but do not enable its managed config path.
-  # OpenClaw mutates ~/.openclaw/openclaw.json at runtime, so Home Manager should
-  # not own that file directly.
-  programs.openclaw.package = lib.mkDefault defaultOpenclawPackage;
-  programs.openclaw.config.gateway.controlUi.root = lib.mkDefault controlUiTarget;
-
   home.packages = [ openclawPackage ];
-
-  home.activation.openclawDirs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    run --quiet ${lib.getExe' coreutils "mkdir"} -p ${stateDir} ${workspaceDir} ${logDir}
-  '';
-
-  home.activation.openclawControlUiAssets = lib.hm.dag.entryAfter [ "openclawDirs" ] ''
-    target_dir="${controlUiTarget}"
-    temp_dir="${controlUiTarget}.tmp"
-
-    # Copy dashboard assets out of /nix/store so OpenClaw does not reject them
-    # as hardlinked files during safe static file serving.
-    if [ -e "$temp_dir" ]; then
-      run --quiet ${lib.getExe' coreutils "chmod"} -R u+w "$temp_dir"
-      run --quiet ${lib.getExe' coreutils "rm"} -rf "$temp_dir"
-    fi
-    run --quiet ${lib.getExe' coreutils "mkdir"} -p "$temp_dir"
-    run --quiet ${lib.getExe' coreutils "cp"} -R ${controlUiSource}/. "$temp_dir/"
-    run --quiet ${lib.getExe' coreutils "chmod"} -R u+w "$temp_dir"
-    if [ -e "$target_dir" ]; then
-      run --quiet ${lib.getExe' coreutils "chmod"} -R u+w "$target_dir"
-      run --quiet ${lib.getExe' coreutils "rm"} -rf "$target_dir"
-    fi
-    run --quiet ${lib.getExe' coreutils "mv"} "$temp_dir" "$target_dir"
-  '';
 
   systemd.user.services.openclaw-gateway = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     Unit = {
@@ -64,16 +58,13 @@ in
     };
 
     Service = {
-      ExecStartPre = [
-        "${openclawBinary} config set gateway.mode local"
-        "${openclawBinary} config set gateway.controlUi.root ${lib.escapeShellArg controlUiTarget}"
-      ];
+      ExecStartPre = "${prepareGateway}";
       ExecStart = "${openclawBinary} gateway";
       WorkingDirectory = stateDir;
       Restart = "always";
       RestartSec = "1s";
       Environment = [
-        "HOME=${config.home.homeDirectory}"
+        "HOME=${homeDir}"
         "OPENCLAW_STATE_DIR=${stateDir}"
       ];
       StandardOutput = "append:${logPath}";
