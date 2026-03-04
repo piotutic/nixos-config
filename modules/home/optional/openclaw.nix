@@ -39,15 +39,23 @@ in
   '';
 
   home.activation.openclawControlUiAssets = lib.hm.dag.entryAfter [ "openclawDirs" ] ''
+    target_dir="${controlUiTarget}"
     temp_dir="${controlUiTarget}.tmp"
 
     # Copy dashboard assets out of /nix/store so OpenClaw does not reject them
     # as hardlinked files during safe static file serving.
-    run --quiet ${lib.getExe' coreutils "rm"} -rf "$temp_dir"
+    if [ -e "$temp_dir" ]; then
+      run --quiet ${lib.getExe' coreutils "chmod"} -R u+w "$temp_dir"
+      run --quiet ${lib.getExe' coreutils "rm"} -rf "$temp_dir"
+    fi
     run --quiet ${lib.getExe' coreutils "mkdir"} -p "$temp_dir"
     run --quiet ${lib.getExe' coreutils "cp"} -R ${controlUiSource}/. "$temp_dir/"
-    run --quiet ${lib.getExe' coreutils "rm"} -rf ${controlUiTarget}
-    run --quiet ${lib.getExe' coreutils "mv"} "$temp_dir" ${controlUiTarget}
+    run --quiet ${lib.getExe' coreutils "chmod"} -R u+w "$temp_dir"
+    if [ -e "$target_dir" ]; then
+      run --quiet ${lib.getExe' coreutils "chmod"} -R u+w "$target_dir"
+      run --quiet ${lib.getExe' coreutils "rm"} -rf "$target_dir"
+    fi
+    run --quiet ${lib.getExe' coreutils "mv"} "$temp_dir" "$target_dir"
   '';
 
   systemd.user.services.openclaw-gateway = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
@@ -56,8 +64,10 @@ in
     };
 
     Service = {
-      ExecStartPre =
-        "${openclawBinary} config set gateway.controlUi.root ${lib.escapeShellArg controlUiTarget}";
+      ExecStartPre = [
+        "${openclawBinary} config set gateway.mode local"
+        "${openclawBinary} config set gateway.controlUi.root ${lib.escapeShellArg controlUiTarget}"
+      ];
       ExecStart = "${openclawBinary} gateway";
       WorkingDirectory = stateDir;
       Restart = "always";
