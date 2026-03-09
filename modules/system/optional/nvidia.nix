@@ -1,17 +1,6 @@
-{ config, lib, pkgs, ... }:
+{ config, pkgs, ... }:
 
-let
-  cfg = config.pio.nvidia;
-in
 {
-  options.pio.nvidia = {
-    cuda = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Include CUDA toolkit and GPU monitoring tools.";
-    };
-  };
-
   config = {
     services.xserver.videoDrivers = [ "nvidia" ];
 
@@ -28,9 +17,7 @@ in
       enable32Bit = true;
     };
 
-    environment.systemPackages = lib.optionals cfg.cuda (with pkgs; [
-      cudatoolkit
-      nvtopPackages.nvidia
-    ]);
+    environment.systemPackages = with pkgs; [
+    ];
   };
 }
