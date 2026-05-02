@@ -98,7 +98,7 @@ Home modules are also imported directly by host files.
 - `development`
   - CLI/dev packages
 - `llm-agents`
-  - Codex, Claude Code, Gemini CLI, and OpenCode
+  - Codex, Claude Code, Gemini CLI, and Crush
 - `video-editing`
   - `ffmpeg-full`, `davinci-resolve`
 
