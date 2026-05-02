@@ -41,6 +41,7 @@
       gp = "git push";
       gl = "git pull";
       update = "sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
+      update-boot = "sudo nixos-rebuild boot --flake /home/pio/nixos-config && nixos-auto-commit";
       upgrade = "cd /home/pio/nixos-config && nix flake update && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
       upgrade-agents = "cd /home/pio/nixos-config && nix flake update llm-agents && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
       nix-gc = "sudo nix-collect-garbage -d";
