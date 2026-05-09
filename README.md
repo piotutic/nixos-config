@@ -46,6 +46,7 @@ nixos-config/
         ├── common/
         └── optional/
             ├── development.nix
+            ├── hermes-agent.nix
             ├── llm-agents.nix
             └── video-editing.nix
 ```
@@ -62,7 +63,7 @@ nix-gc
 
 - `hp-laptop`
   - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `portable`, `power-management`
-  - home: `common`, `development`, `llm-agents`
+  - home: `common`, `development`, `llm-agents`, `hermes-agent`
 - `zenith`
   - system: `common`, `gui`, `docker`, `mullvad`, `plymouth`, `auto-commit`, `nvidia`, `gaming`
   - home: `common`, `development`, `llm-agents`, `video-editing`
@@ -99,6 +100,8 @@ Home modules are also imported directly by host files.
   - CLI/dev packages
 - `llm-agents`
   - Codex, Claude Code, Gemini CLI, and Crush
+- `hermes-agent`
+  - Hermes Agent CLI
 - `video-editing`
   - `ffmpeg-full`, `davinci-resolve`
 
