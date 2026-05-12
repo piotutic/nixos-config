@@ -7,9 +7,10 @@
     ../../modules/system/optional/mullvad.nix
     ../../modules/system/optional/plymouth.nix
     ../../modules/system/optional/auto-commit.nix
+    ../../modules/system/optional/hermes-agent.nix
     ../../modules/system/optional/portable.nix
     ../../modules/system/optional/power-management.nix
   ];
 
-  pio.portable.lidAction = "poweroff";
+  pio.portable.lidAction = "ignore";
 }

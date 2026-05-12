@@ -39,6 +39,7 @@ nixos-config/
     │       ├── plymouth.nix
     │       ├── nvidia.nix
     │       ├── gaming.nix
+    │       ├── hermes-agent.nix
     │       ├── portable.nix
     │       ├── power-management.nix
     │       └── auto-commit.nix
@@ -46,7 +47,6 @@ nixos-config/
         ├── common/
         └── optional/
             ├── development.nix
-            ├── hermes-agent.nix
             ├── llm-agents.nix
             └── video-editing.nix
 ```
@@ -59,11 +59,30 @@ upgrade
 nix-gc
 ```
 
+## Hermes Agent
+
+`hp-laptop` runs Hermes through the official NixOS module in native mode. The
+service reads secrets from `/var/lib/hermes/env`; do not commit API keys to this
+repo.
+
+One-time migration from the old user-level setup:
+
+```bash
+systemctl --user disable --now hermes-gateway.service
+sudo nixos-rebuild switch --flake ~/nixos-config#hp-laptop
+sudo systemctl stop hermes-agent
+sudo install -d -o hermes -g hermes -m 2770 /var/lib/hermes /var/lib/hermes/.hermes
+sudo install -o hermes -g hermes -m 0600 ~/.hermes/.env /var/lib/hermes/env
+sudo cp -a ~/.hermes/{config.yaml,auth.json,SOUL.md,state.db,kanban.db,sessions,memories,skills,cron,gateway_state.json,channel_directory.json,processes.json} /var/lib/hermes/.hermes/
+sudo chown -R hermes:hermes /var/lib/hermes
+sudo nixos-rebuild switch --flake ~/nixos-config#hp-laptop
+```
+
 ## Current Hosts
 
 - `hp-laptop`
-  - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `portable`, `power-management`
-  - home: `common`, `development`, `llm-agents`, `hermes-agent`
+  - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `hermes-agent`, `portable`, `power-management`
+  - home: `common`, `development`, `llm-agents`
 - `zenith`
   - system: `common`, `gui`, `docker`, `mullvad`, `plymouth`, `auto-commit`, `nvidia`, `gaming`
   - home: `common`, `development`, `llm-agents`, `video-editing`
@@ -86,6 +105,10 @@ System modules are imported directly by host files.
   - optional knob: `pio.nvidia.cuda`
 - `gaming`
   - Steam, Proton, GameMode
+- `hermes-agent`
+  - official Hermes Agent NixOS service in native mode
+  - reads local secrets from `/var/lib/hermes/env`
+  - adds supporting tools through `services.hermes-agent.extraPackages`
 - `portable`
   - lid and suspend behavior
   - optional knobs: `pio.portable.lidAction`, `pio.portable.suspendEnabled`
@@ -100,8 +123,6 @@ Home modules are also imported directly by host files.
   - CLI/dev packages
 - `llm-agents`
   - Codex, Claude Code, Gemini CLI, and Crush
-- `hermes-agent`
-  - Hermes Agent CLI
 - `video-editing`
   - `ffmpeg-full`, `davinci-resolve`
 
