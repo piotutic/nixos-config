@@ -16,6 +16,8 @@
     environmentFiles = [ "/var/lib/hermes/env" ];
     addToSystemPackages = true;
 
+    extraDependencyGroups = [ "messaging" ];
+
     extraPackages = with pkgs; [
       curl
       ffmpeg
