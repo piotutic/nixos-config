@@ -61,22 +61,21 @@ nix-gc
 
 ## Hermes Agent
 
-`hp-laptop` runs Hermes through the official NixOS module in native mode. The
-service reads secrets from `/var/lib/hermes/env`; do not commit API keys to this
-repo.
+`hp-laptop` runs Hermes through the official NixOS module in native mode. NixOS
+manages the package, systemd service, shared directories, and permissions.
+Hermes behavior is managed live in `/var/lib/hermes/.hermes/config.yaml`, so
+model/tool/gateway settings can be changed with `hermes config edit` or direct
+YAML edits without rebuilding.
 
-One-time migration from the old user-level setup:
+The gateway runs as the `hermes` system user. `pio` is in the `hermes` group and
+uses the same state via `HERMES_HOME=/var/lib/hermes/.hermes`; `/home/pio/.hermes`
+is also linked there for tools that fall back to `~/.hermes`. Rebuilds repair
+ownership and group-writable modes under `/var/lib/hermes` without overwriting
+the live config.
 
-```bash
-systemctl --user disable --now hermes-gateway.service
-sudo nixos-rebuild switch --flake ~/nixos-config#hp-laptop
-sudo systemctl stop hermes-agent
-sudo install -d -o hermes -g hermes -m 2770 /var/lib/hermes /var/lib/hermes/.hermes
-sudo install -o hermes -g hermes -m 0600 ~/.hermes/.env /var/lib/hermes/env
-sudo cp -a ~/.hermes/{config.yaml,auth.json,SOUL.md,state.db,kanban.db,sessions,memories,skills,cron,gateway_state.json,channel_directory.json,processes.json} /var/lib/hermes/.hermes/
-sudo chown -R hermes:hermes /var/lib/hermes
-sudo nixos-rebuild switch --flake ~/nixos-config#hp-laptop
-```
+Secrets are still local-only. Put API keys and platform tokens in
+`/var/lib/hermes/env`; activation merges that file into
+`/var/lib/hermes/.hermes/.env`. Do not commit secrets to this repo.
 
 ## Current Hosts
 
@@ -107,7 +106,9 @@ System modules are imported directly by host files.
   - Steam, Proton, GameMode
 - `hermes-agent`
   - official Hermes Agent NixOS service in native mode
+  - uses live config from `/var/lib/hermes/.hermes/config.yaml`
   - reads local secrets from `/var/lib/hermes/env`
+  - repairs shared `hermes:hermes` ownership and group permissions on rebuild
   - adds supporting tools through `services.hermes-agent.extraPackages`
 - `portable`
   - lid and suspend behavior

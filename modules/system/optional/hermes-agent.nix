@@ -1,5 +1,6 @@
 {
   inputs,
+  lib,
   pkgs,
   ...
 }: {
@@ -26,97 +27,69 @@
       ripgrep
       tirith
     ];
-
-    settings = {
-      model = {
-        base_url = "";
-        default = "deepseek/deepseek-v4-flash";
-        provider = "openrouter";
-      };
-
-      fallback_providers = [
-        {
-          provider = "openrouter";
-          model = "qwen/qwen3.5-flash-02-23";
-        }
-      ];
-
-      toolsets = [ "hermes-cli" ];
-
-      agent = {
-        max_turns = 90;
-        gateway_timeout = 1800;
-        restart_drain_timeout = 180;
-        api_max_retries = 3;
-        service_tier = "";
-        tool_use_enforcement = "auto";
-        gateway_timeout_warning = 900;
-        gateway_notify_interval = 180;
-        gateway_auto_continue_freshness = 3600;
-        image_input_mode = "auto";
-        disabled_toolsets = [];
-      };
-
-      terminal = {
-        backend = "local";
-        modal_mode = "auto";
-        cwd = ".";
-        timeout = 180;
-        env_passthrough = [];
-        shell_init_files = [ "~/.zshrc" ];
-        auto_source_bashrc = true;
-        persistent_shell = true;
-      };
-
-      compression = {
-        enabled = true;
-        threshold = 0.5;
-        target_ratio = 0.2;
-        protect_last_n = 20;
-        hygiene_hard_message_limit = 400;
-      };
-
-      telegram = {
-        reactions = false;
-        channel_prompts = {};
-        allowed_chats = "";
-      };
-
-      approvals = {
-        mode = "manual";
-        timeout = 60;
-        cron_mode = "deny";
-        mcp_reload_confirm = true;
-      };
-
-      security = {
-        allow_private_urls = false;
-        redact_secrets = true;
-        tirith_enabled = true;
-        tirith_path = "tirith";
-        tirith_timeout = 5;
-        tirith_fail_open = true;
-        website_blocklist = {
-          enabled = false;
-          domains = [];
-          shared_files = [];
-        };
-      };
-
-      cron = {
-        wrap_response = true;
-        max_parallel_jobs = null;
-      };
-
-      kanban = {
-        dispatch_in_gateway = true;
-        dispatch_interval_seconds = 60;
-        failure_limit = 2;
-      };
-
-      code_execution.mode = "project";
-    };
   };
 
-  systemd.services.hermes-agent.serviceConfig.TimeoutStopSec = "210s";
+  environment.variables = {
+    HERMES_HOME = "/var/lib/hermes/.hermes";
+    HERMES_HOME_MODE = "2770";
+    HERMES_SKIP_CHMOD = "1";
+  };
+
+  systemd.services.hermes-agent = {
+    environment = {
+      HERMES_MANAGED = lib.mkForce "";
+      HERMES_HOME_MODE = "2770";
+      HERMES_SKIP_CHMOD = "1";
+    };
+
+    serviceConfig.TimeoutStopSec = "210s";
+  };
+
+  system.activationScripts."hermes-agent-setup" = lib.mkForce (lib.stringAfter [ "users" ] ''
+    HERMES_STATE=/var/lib/hermes
+    HERMES_HOME_DIR="$HERMES_STATE/.hermes"
+    PIO_HERMES=/home/pio/.hermes
+
+    mkdir -p \
+      "$HERMES_HOME_DIR" \
+      "$HERMES_HOME_DIR/cron" \
+      "$HERMES_HOME_DIR/sessions" \
+      "$HERMES_HOME_DIR/logs" \
+      "$HERMES_HOME_DIR/memories" \
+      "$HERMES_HOME_DIR/plugins" \
+      "$HERMES_STATE/home" \
+      "$HERMES_STATE/workspace"
+
+    if [ -f "$HERMES_STATE/env" ]; then
+      install -o hermes -g hermes -m 0660 /dev/null "$HERMES_HOME_DIR/.env"
+      cat "$HERMES_STATE/env" > "$HERMES_HOME_DIR/.env"
+    fi
+
+    if [ ! -f "$HERMES_HOME_DIR/config.yaml" ]; then
+      install -o hermes -g hermes -m 0660 /dev/null "$HERMES_HOME_DIR/config.yaml"
+      printf '{}\n' > "$HERMES_HOME_DIR/config.yaml"
+    fi
+
+    chown -R hermes:hermes "$HERMES_STATE"
+
+    ${pkgs.acl}/bin/setfacl -Rb "$HERMES_STATE" 2>/dev/null || true
+
+    find "$HERMES_STATE" -type d -exec chmod 2770 {} +
+    find "$HERMES_STATE" -type f -perm /111 -exec chmod 0770 {} +
+    find "$HERMES_STATE" -type f ! -perm /111 -exec chmod 0660 {} +
+
+    rm -f "$HERMES_HOME_DIR/.managed"
+
+    if [ -L "$PIO_HERMES" ]; then
+      ln -sfn "$HERMES_HOME_DIR" "$PIO_HERMES"
+    elif [ ! -e "$PIO_HERMES" ]; then
+      ln -s "$HERMES_HOME_DIR" "$PIO_HERMES"
+    else
+      echo "hermes-agent: leaving existing non-symlink $PIO_HERMES untouched"
+    fi
+
+    if [ -L "$PIO_HERMES" ]; then
+      chown -h pio:hermes "$PIO_HERMES"
+    fi
+  '');
 }
