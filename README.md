@@ -39,7 +39,6 @@ nixos-config/
     │       ├── plymouth.nix
     │       ├── nvidia.nix
     │       ├── gaming.nix
-    │       ├── hermes-agent.nix
     │       ├── portable.nix
     │       ├── power-management.nix
     │       └── auto-commit.nix
@@ -59,28 +58,10 @@ upgrade
 nix-gc
 ```
 
-## Hermes Agent
-
-`hp-laptop` runs Hermes through the official NixOS module in native mode. NixOS
-manages the package, systemd service, shared directories, and permissions.
-Hermes behavior is managed live in `/var/lib/hermes/.hermes/config.yaml`, so
-model/tool/gateway settings can be changed with `hermes config edit` or direct
-YAML edits without rebuilding.
-
-The gateway runs as the `hermes` system user. `pio` is in the `hermes` group and
-uses the same state via `HERMES_HOME=/var/lib/hermes/.hermes`; `/home/pio/.hermes`
-is also linked there for tools that fall back to `~/.hermes`. Rebuilds repair
-ownership and group-writable modes under `/var/lib/hermes` without overwriting
-the live config.
-
-Secrets are still local-only. Put API keys and platform tokens in
-`/var/lib/hermes/env`; activation merges that file into
-`/var/lib/hermes/.hermes/.env`. Do not commit secrets to this repo.
-
 ## Current Hosts
 
 - `hp-laptop`
-  - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `hermes-agent`, `portable`, `power-management`
+  - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `portable`, `power-management`
   - home: `common`, `development`, `llm-agents`
 - `zenith`
   - system: `common`, `gui`, `docker`, `mullvad`, `plymouth`, `auto-commit`, `nvidia`, `gaming`
@@ -104,12 +85,6 @@ System modules are imported directly by host files.
   - optional knob: `pio.nvidia.cuda`
 - `gaming`
   - Steam, Proton, GameMode
-- `hermes-agent`
-  - official Hermes Agent NixOS service in native mode
-  - uses live config from `/var/lib/hermes/.hermes/config.yaml`
-  - reads local secrets from `/var/lib/hermes/env`
-  - repairs shared `hermes:hermes` ownership and group permissions on rebuild
-  - adds supporting tools through `services.hermes-agent.extraPackages`
 - `portable`
   - lid and suspend behavior
   - optional knobs: `pio.portable.lidAction`, `pio.portable.suspendEnabled`
