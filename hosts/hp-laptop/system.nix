@@ -9,6 +9,7 @@
     ../../modules/system/optional/auto-commit.nix
     ../../modules/system/optional/portable.nix
     ../../modules/system/optional/power-management.nix
+    ../../modules/system/optional/github-runner.nix
   ];
 
   pio.portable.lidAction = "ignore";
