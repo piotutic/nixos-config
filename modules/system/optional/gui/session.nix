@@ -15,7 +15,6 @@
     epiphany
     geary
     gnome-music
-    gnome-photos
     simple-scan
     yelp
   ];
