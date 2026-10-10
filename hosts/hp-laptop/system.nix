@@ -13,4 +13,8 @@
   ];
 
   pio.portable.lidAction = "ignore";
+
+  # Keep the Hermes user services (home/optional/hermes-agent.nix) running
+  # without an active login session.
+  users.users.pio.linger = true;
 }

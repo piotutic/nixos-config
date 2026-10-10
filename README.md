@@ -22,13 +22,8 @@ nixos-config/
 │   │   ├── default.nix
 │   │   ├── system.nix
 │   │   └── home.nix
-│   ├── zenith/
-│   │   ├── default.nix
-│   │   ├── system.nix
-│   │   └── home.nix
 │   └── hardware/
-│       ├── hp-laptop.nix
-│       └── zenith.nix
+│       └── hp-laptop.nix
 └── modules/
     ├── system/
     │   ├── common/
@@ -47,6 +42,7 @@ nixos-config/
         └── optional/
             ├── development.nix
             ├── llm-agents.nix
+            ├── hermes-agent.nix
             └── video-editing.nix
 ```
 
@@ -61,11 +57,8 @@ nix-gc
 ## Current Hosts
 
 - `hp-laptop`
-  - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `portable`, `power-management`
-  - home: `common`, `development`, `llm-agents`
-- `zenith`
-  - system: `common`, `gui`, `docker`, `mullvad`, `plymouth`, `auto-commit`, `nvidia`, `gaming`
-  - home: `common`, `development`, `llm-agents`, `video-editing`
+  - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `portable`, `power-management`, `github-runner`
+  - home: `common`, `development`, `llm-agents`, `photo-editing`, `hermes-agent`
 
 ## Capability Modules
 
@@ -101,6 +94,10 @@ Home modules are also imported directly by host files.
   - Codex, Claude Code, Gemini CLI, and Crush
 - `video-editing`
   - `ffmpeg-full`, `davinci-resolve`
+- `hermes-agent`
+  - Hermes CLI, desktop app, and user services: gateway + backend/web dashboard on `http://127.0.0.1:9119`
+  - state in `~/.hermes`; config and API keys are managed live from the app or `hermes config`, not Nix
+  - host needs `users.users.pio.linger = true` so the services outlive the login session
 
 ## Adding a New Host
 
@@ -166,7 +163,6 @@ Create `hosts/mydevice/home.nix`:
 ```nix
 nixosConfigurations = {
   hp-laptop = mkHost "hp-laptop";
-  zenith = mkHost "zenith";
   mydevice = mkHost "mydevice";
 };
 ```
@@ -183,7 +179,7 @@ sudo nixos-rebuild switch --flake .#mydevice
 
 Add the module import to `hosts/<name>/system.nix` or `hosts/<name>/home.nix`.
 
-Example: enable Docker only on `zenith`:
+Example: enable Docker only on `hp-laptop`:
 
 ```nix
 {

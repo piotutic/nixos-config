@@ -11,6 +11,11 @@
 
     llm-agents.url = "github:numtide/llm-agents.nix";
 
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs = {
@@ -48,7 +53,6 @@
   in {
     nixosConfigurations = {
       hp-laptop = mkHost "hp-laptop";
-      zenith = mkHost "zenith";
     };
   };
 }
