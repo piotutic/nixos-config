@@ -7,7 +7,10 @@
   ...
 }: let
   cfg = config.services.hermes-agent;
-  tokenFile = "${config.xdg.configHome}/hermes/desktop-token";
+  # MagicDNS name of this machine (modules/system/optional/tailscale.nix).
+  # Hermes Conduit must connect with exactly this name: the dashboard rejects
+  # any other Host header.
+  tailnetHost = "hp-laptop.tailcd6693.ts.net";
   chromeBin = "${pkgs.google-chrome}/bin/google-chrome-stable";
 in {
   imports = [
@@ -34,8 +37,11 @@ in {
       };
   };
 
-  # Gateway (Telegram, Discord, ...) plus the backend the desktop app attaches
-  # to. "dashboard" also serves the web admin panel on http://127.0.0.1:9119.
+  # Gateway (Telegram, Discord, ...) plus the web dashboard, served on the
+  # tailnet only (http://${tailnetHost}:9119) for Hermes Conduit. A non-loopback
+  # bind requires dashboard login (dashboard.basic_auth in config.yaml), and the
+  # backend refuses to start without it. Gated backends reject a desktop
+  # session token, so the desktop app spawns its own loopback backend.
   # No settings/environmentFiles: config.yaml and .env stay owned by the app,
   # `hermes config edit` and `hermes config set`, and survive rebuilds.
   services.hermes-agent = {
@@ -44,7 +50,10 @@ in {
 
     backend = {
       mode = "dashboard";
-      sessionTokenFile = tokenFile;
+      host = tailnetHost;
+      # tailscaled is a system unit, so the user unit polls until the name
+      # resolves instead of ordering after it.
+      waitFor = "hostname";
     };
 
     # The units get a fixed PATH, so tools from the user profile must be listed
@@ -81,18 +90,6 @@ in {
   ];
 
   home.activation = {
-    # Shared token so the desktop app reaches the backend service instead of
-    # spawning its own. Generated once, never in the Nix store.
-    hermesDesktopToken = lib.hm.dag.entryBefore ["hermesAgentSetup"] ''
-      if [ ! -s ${lib.escapeShellArg tokenFile} ]; then
-        run mkdir -p ${lib.escapeShellArg (dirOf tokenFile)}
-        run ${pkgs.bash}/bin/bash -c ${lib.escapeShellArg ''
-        umask 077
-        od -An -tx1 -N32 /dev/urandom | tr -d " \n" > ${lib.escapeShellArg tokenFile}
-      ''}
-      fi
-    '';
-
     hermesAgentUnmanage = lib.hm.dag.entryAfter ["hermesAgentSetup"] ''
       run rm -f ${lib.escapeShellArg "${cfg.hermesHome}/.managed"}
     '';
