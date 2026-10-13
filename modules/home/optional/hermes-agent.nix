@@ -8,6 +8,7 @@
 }: let
   cfg = config.services.hermes-agent;
   tokenFile = "${config.xdg.configHome}/hermes/desktop-token";
+  chromeBin = "${pkgs.google-chrome}/bin/google-chrome-stable";
 in {
   imports = [
     inputs.hermes-agent.homeManagerModules.default
@@ -60,6 +61,7 @@ in {
       ]
       ++ [
         config.programs.gh.package
+        llm-agents-pkgs.agent-browser
         llm-agents-pkgs.claude-code
         llm-agents-pkgs.codex
       ];
@@ -67,8 +69,16 @@ in {
 
   # Keep config live-editable, as before: override HERMES_MANAGED in the units
   # (later Environment= entries win) and drop the marker the shell reads.
-  systemd.user.services.hermes-agent.Service.Environment = lib.mkAfter ["HERMES_MANAGED=false"];
-  systemd.user.services.hermes-backend.Service.Environment = lib.mkAfter ["HERMES_MANAGED=false"];
+  # The units don't see session variables, so the browser tools also get
+  # agent-browser's Chrome path here (see llm-agents.nix).
+  systemd.user.services.hermes-agent.Service.Environment = lib.mkAfter [
+    "HERMES_MANAGED=false"
+    "AGENT_BROWSER_EXECUTABLE_PATH=${chromeBin}"
+  ];
+  systemd.user.services.hermes-backend.Service.Environment = lib.mkAfter [
+    "HERMES_MANAGED=false"
+    "AGENT_BROWSER_EXECUTABLE_PATH=${chromeBin}"
+  ];
 
   home.activation = {
     # Shared token so the desktop app reaches the backend service instead of
