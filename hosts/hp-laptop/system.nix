@@ -5,6 +5,7 @@
     ../../modules/system/common
     ../../modules/system/optional/gui
     ../../modules/system/optional/mullvad.nix
+    ../../modules/system/optional/tailscale.nix
     ../../modules/system/optional/plymouth.nix
     ../../modules/system/optional/auto-commit.nix
     ../../modules/system/optional/portable.nix
