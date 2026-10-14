@@ -58,7 +58,8 @@ in {
 
     # The units get a fixed PATH, so tools from the user profile must be listed
     # here. gh backs git's GitHub credential helper; claude/codex let the agent
-    # delegate coding via the bundled skills.
+    # delegate coding via the bundled skills. systemd provides systemd-run for
+    # kanban/cron worker scopes.
     extraPackages = with pkgs;
       [
         curl
@@ -67,6 +68,7 @@ in {
         jq
         nodejs_22
         ripgrep
+        systemd
         tirith
       ]
       ++ [
