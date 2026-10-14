@@ -11,6 +11,7 @@
     ../../modules/system/optional/portable.nix
     ../../modules/system/optional/power-management.nix
     ../../modules/system/optional/github-runner.nix
+    ../../modules/system/optional/docker.nix
   ];
 
   pio.portable.lidAction = "ignore";

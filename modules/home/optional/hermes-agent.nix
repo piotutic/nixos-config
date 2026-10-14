@@ -62,6 +62,7 @@ in {
     extraPackages = with pkgs;
       [
         curl
+        docker-client
         ffmpeg
         jq
         nodejs_22
@@ -83,11 +84,23 @@ in {
   systemd.user.services.hermes-agent.Service.Environment = lib.mkAfter [
     "HERMES_MANAGED=false"
     "AGENT_BROWSER_EXECUTABLE_PATH=${chromeBin}"
+    "DOCKER_HOST=unix:///run/user/1000/docker.sock"
   ];
   systemd.user.services.hermes-backend.Service.Environment = lib.mkAfter [
     "HERMES_MANAGED=false"
     "AGENT_BROWSER_EXECUTABLE_PATH=${chromeBin}"
+    "DOCKER_HOST=unix:///run/user/1000/docker.sock"
   ];
+  # Sandboxed bot sessions (gateway and dashboard backend) need the rootless
+  # daemon up before the Hermes units.
+  systemd.user.services.hermes-agent.Unit = {
+    Wants = [ "docker.service" ];
+    After = [ "docker.service" ];
+  };
+  systemd.user.services.hermes-backend.Unit = {
+    Wants = [ "docker.service" ];
+    After = [ "docker.service" ];
+  };
 
   home.activation = {
     hermesAgentUnmanage = lib.hm.dag.entryAfter ["hermesAgentSetup"] ''
