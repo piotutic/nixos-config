@@ -19,7 +19,12 @@
     # /var/lib), so pnpm copied instead of hard-linking. A systemd-managed
     # CacheDirectory is created and owned for the service's DynamicUser, and is
     # writable inside its sandbox; the service empties workDir on every start.
-    workDir = "/var/cache/github-runner-work/clippod";
+    # Under DynamicUser systemd keeps it at /var/cache/private/... behind a
+    # /var/cache/... symlink: workDir must be the REAL path, because
+    # actions/checkout scopes its credentials with a git `includeIf gitdir:` on the
+    # workspace path while git resolves the symlink, so the token never applied
+    # ("could not read Username", 2026-10-17).
+    workDir = "/var/cache/private/github-runner-work/clippod";
     serviceOverrides = {
       CacheDirectory = [ "github-runner-work/clippod" ];
       # The module binds a non-null workDir (BindPaths). Under DynamicUser the
