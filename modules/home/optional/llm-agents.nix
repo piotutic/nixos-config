@@ -5,6 +5,7 @@
     llm-agents-pkgs.agent-browser
     llm-agents-pkgs.codex
     llm-agents-pkgs.claude-code
+    llm-agents-pkgs.claude-desktop
   ];
 
   # agent-browser would otherwise fetch its own Chromium, and prebuilt
