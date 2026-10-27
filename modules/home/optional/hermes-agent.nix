@@ -42,11 +42,13 @@ in {
   # bind requires dashboard login (dashboard.basic_auth in config.yaml), and the
   # backend refuses to start without it. Gated backends reject a desktop
   # session token, so the desktop app spawns its own loopback backend.
-  # No settings/environmentFiles: config.yaml and .env stay owned by the app,
-  # `hermes config edit` and `hermes config set`, and survive rebuilds.
+  # The plugin selection is the only Nix-managed config key; Home Manager
+  # deep-merges it into config.yaml. Other settings and .env remain app-owned.
   services.hermes-agent = {
     enable = true;
     gateway.enable = true;
+    # The source is already installed under hermesHome/plugins.
+    settings.plugins.enabled = [ "conduit_push" ];
 
     backend = {
       mode = "dashboard";
