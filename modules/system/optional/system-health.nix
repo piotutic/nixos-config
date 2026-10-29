@@ -2,7 +2,12 @@
 
 {
   # Compressed swap in RAM; used before the disk swap partition (higher priority).
-  zramSwap.enable = true;
+  zramSwap = {
+    enable = true;
+    # Max uncompressed size, not RAM used: ~3:1 zstd puts the real cost at
+    # about a third of this when full.
+    memoryPercent = 100;
+  };
 
   # Tuned for zram: swapping to compressed RAM is cheaper than re-reading
   # evicted file cache from disk, so prefer it (swap:cache weight 180:20).
