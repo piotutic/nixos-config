@@ -18,7 +18,13 @@ let
     ${pkgs.git}/bin/git add -A
 
     TIMESTAMP=$(${pkgs.coreutils}/bin/date '+%Y-%m-%d %H:%M:%S')
-    ${pkgs.git}/bin/git commit -m "config: $TIMESTAMP"
+    FILES=$(${pkgs.git}/bin/git diff --cached --name-only)
+    COUNT=$(echo "$FILES" | ${pkgs.coreutils}/bin/wc -l)
+    SUMMARY=$(echo "$FILES" | ${pkgs.coreutils}/bin/head -n 3 | ${pkgs.coreutils}/bin/paste -sd, - | ${pkgs.gnused}/bin/sed 's/,/, /g')
+    if [[ $COUNT -gt 3 ]]; then
+        SUMMARY="$SUMMARY (+$((COUNT - 3)) more)"
+    fi
+    ${pkgs.git}/bin/git commit -m "config: $SUMMARY" -m "$TIMESTAMP" -m "$FILES"
 
     echo "Config changes committed: $TIMESTAMP"
   '';

@@ -9,12 +9,16 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
-    persistent = true;
-    randomizedDelaySec = "45min";
+  # nh wraps nixos-rebuild (diff preview, nix-output-monitor) and replaces
+  # nix.gc for cleanup; the two must not both be enabled.
+  programs.nh = {
+    enable = true;
+    flake = "/home/pio/nixos-config";
+    clean = {
+      enable = true;
+      dates = "weekly";
+      extraArgs = "--keep 5 --keep-since 7d";
+    };
   };
 
   nix.settings.auto-optimise-store = true;

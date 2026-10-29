@@ -1,1 +1,5 @@
 # Hardware configs are now tracked per-device in hosts/*/hardware.nix
+
+# nixos-rebuild build / nix build output symlinks
+result
+result-*

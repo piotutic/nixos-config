@@ -19,6 +19,8 @@
     autosuggestion.enable = true;
     enableCompletion = true;
     syntaxHighlighting.enable = true;
+    # Binds Up/Down (^[[A / ^[[B by default) to substring history search.
+    historySubstringSearch.enable = true;
 
     history = {
       size = 50000;
@@ -40,11 +42,11 @@
       gc = "git commit -m";
       gp = "git push";
       gl = "git pull";
-      update = "sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
-      update-boot = "sudo nixos-rebuild boot --flake /home/pio/nixos-config && nixos-auto-commit";
-      upgrade = "cd /home/pio/nixos-config && nix flake update && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
-      upgrade-agents = "cd /home/pio/nixos-config && nix flake update llm-agents && sudo nixos-rebuild switch --flake /home/pio/nixos-config && nixos-auto-commit";
-      nix-gc = "sudo nix-collect-garbage -d";
+      update = "nh os switch && nixos-auto-commit";
+      update-boot = "nh os boot && nixos-auto-commit";
+      upgrade = "nh os switch --update && nixos-auto-commit";
+      upgrade-agents = "nh os switch --update-input llm-agents && nixos-auto-commit";
+      nix-gc = "nh clean all --keep 5 --keep-since 7d";
       nix-dev = "mkdir -p .nix && nix develop --profile ./.nix/profile";
     };
 
@@ -57,10 +59,6 @@
 
       # Better completion
       setopt MENU_COMPLETE COMPLETE_IN_WORD
-
-      # Key bindings
-      bindkey '^[[A' history-substring-search-up
-      bindkey '^[[B' history-substring-search-down
 
       # Environment
       export EDITOR="code"
