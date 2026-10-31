@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   # Compressed swap in RAM; used before the disk swap partition (higher priority).
@@ -22,6 +22,8 @@
 
   # SMART disk health monitoring; warnings go to logged-in terminals (wall).
   services.smartd.enable = true;
+  # smartd doesn't put smartctl on PATH; `sudo smartctl -H -A /dev/nvme0`.
+  environment.systemPackages = [ pkgs.smartmontools ];
 
   # Kill the worst offending cgroup under memory pressure instead of freezing.
   # User slices cover the Hermes user services; the system slice covers the
