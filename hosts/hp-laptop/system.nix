@@ -13,6 +13,7 @@
     ../../modules/system/optional/github-runner.nix
     ../../modules/system/optional/docker.nix
     ../../modules/system/optional/system-health.nix
+    ../../modules/system/optional/iphone.nix
   ];
 
   pio.portable.lidAction = "ignore";
