@@ -7,5 +7,6 @@
     ../../modules/home/optional/llm-agents.nix
     ../../modules/home/optional/hermes-agent.nix
     ../../modules/home/optional/photo-editing.nix
+    ../../modules/home/optional/bitwarden.nix
   ];
 }

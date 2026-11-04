@@ -43,6 +43,7 @@ nixos-config/
             ├── development.nix
             ├── llm-agents.nix
             ├── hermes-agent.nix
+            ├── bitwarden.nix
             └── video-editing.nix
 ```
 
@@ -58,7 +59,7 @@ nix-gc
 
 - `hp-laptop`
   - system: `common`, `gui`, `mullvad`, `plymouth`, `auto-commit`, `portable`, `power-management`, `github-runner`
-  - home: `common`, `development`, `llm-agents`, `photo-editing`, `hermes-agent`
+  - home: `common`, `development`, `llm-agents`, `photo-editing`, `hermes-agent`, `bitwarden`
 
 ## Capability Modules
 
@@ -92,6 +93,8 @@ Home modules are also imported directly by host files.
   - CLI/dev packages
 - `llm-agents`
   - Codex, Claude Code, Gemini CLI, and Crush
+- `bitwarden`
+  - Bitwarden desktop app and CLI (`bw`)
 - `video-editing`
   - `ffmpeg-full`, `davinci-resolve`
 - `hermes-agent`
