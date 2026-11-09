@@ -46,6 +46,18 @@ in {
   # deep-merges it into config.yaml. Other settings and .env remain app-owned.
   services.hermes-agent = {
     enable = true;
+    # WORKAROUND (2026-11-09): hermes patches nixpkgs' `patchelf` with an
+    # upstream fix written for 0.19.2, but nixpkgs (since ~2026-11-07) ships
+    # 0.15.2 as `patchelf`, so the patch fails to apply. `patchelfUnstable`
+    # already contains that fix (NixOS/patchelf 59acc3d), so hand it over and
+    # make hermes' `.overrideAttrs` a no-op. Drop once hermes handles this.
+    package = let
+      patchelf = pkgs.patchelfUnstable // {overrideAttrs = _: pkgs.patchelfUnstable;};
+      pmPackages = lib.filterAttrs (_: lib.isDerivation) (
+        pkgs.callPackage "${inputs.hermes-agent}/nix/pm-packages.nix" {inherit patchelf;}
+      );
+    in
+      inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default.override {inherit pmPackages;};
     gateway.enable = true;
     # The source is already installed under hermesHome/plugins.
     settings.plugins.enabled = [ "conduit_push" ];
