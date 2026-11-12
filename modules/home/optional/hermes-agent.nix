@@ -57,7 +57,15 @@ in {
         pkgs.callPackage "${inputs.hermes-agent}/nix/pm-packages.nix" {inherit patchelf;}
       );
     in
-      inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default.override {inherit pmPackages;};
+      inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
+        inherit pmPackages;
+        # Upstream's flake never passes `version`, so the package defaults to
+        # "0.0.0", which then shows up in `hermes --version` and in the
+        # User-Agent sent to providers (HermesAgent/0.0.0). Stamp the last
+        # release the locked rev descends from. Bump it after a flake update
+        # crosses a new release tag (check: gh api repos/NousResearch/hermes-agent/releases/latest).
+        version = "0.23.1";
+      };
     gateway.enable = true;
     # The source is already installed under hermesHome/plugins.
     settings.plugins.enabled = [ "conduit_push" ];
