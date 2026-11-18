@@ -14,6 +14,7 @@
     ../../modules/system/optional/docker.nix
     ../../modules/system/optional/system-health.nix
     ../../modules/system/optional/iphone.nix
+    ../../modules/system/optional/gaming.nix
   ];
 
   pio.portable.lidAction = "ignore";
